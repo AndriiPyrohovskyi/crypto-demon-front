@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Firebase Login & Registration</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    input {
+      margin: 4px;
+    }
+
+    textarea {
+      width: 80%;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>🔐 Firebase Auth</h2>
+  <div>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="emailLogin()">Login via Email</button>
+    <br /><br />
+    <button onclick="googleLogin()">Login via Google</button>
+  </div>
+
+  <br />
+
+  <div id="registration" class="hidden">
+    <h3>👤 Доповнити профіль</h3>
+    <input type="text" id="username" placeholder="Username" /><br />
+    <input type="text" id="country" placeholder="Country" /><br />
+    <input type="text" id="currency" placeholder="Preferred Currency" /><br />
+    <button onclick="completeRegistration()">📩 Зареєструвати</button>
+  </div>
+
+  <h4>🔑 Token:</h4>
+  <textarea id="tokenOutput" rows="6" readonly></textarea>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAy0wXYbwn9akfxSYSROt3qu8KkmcvzebA",
+      authDomain: "crypto-demon.firebaseapp.com",
+      projectId: "crypto-demon",
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    async function emailLogin() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      try {
+        const cred = await firebase.auth().signInWithEmailAndPassword(email, password);
+        const token = await cred.user.getIdToken();
+        document.getElementById("tokenOutput").value = token;
+        document.getElementById("registration").classList.remove("hidden");
+        window.firebaseUid = cred.user.uid;
+      } catch (err) {
+        alert("❌ Email Login Failed: " + err.message);
+      }
+    }
+
+    async function googleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await firebase.auth().signInWithPopup(provider);
+        const token = await result.user.getIdToken();
+        document.getElementById("tokenOutput").value = token;
+        document.getElementById("registration").classList.remove("hidden");
+        window.firebaseUid = result.user.uid;
+      } catch (err) {
+        alert("❌ Google Login Failed: " + err.message);
+      }
+    }
+
+    async function completeRegistration() {
+      const username = document.getElementById("username").value;
+      const country = document.getElementById("country").value;
+      const currency = document.getElementById("currency").value;
+      const token = document.getElementById("tokenOutput").value;
+
+      const res = await fetch("http://localhost:3000/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          firebaseUid: window.firebaseUid,
+          username,
+          country,
+          preferredCurrency: currency
+        }),
+      });
+
+      if (res.ok) {
+        alert("✅ Реєстрація завершена!");
+      } else {
+        const err = await res.text();
+        alert("❌ Помилка реєстрації: " + err);
+      }
+    }
+  </script>
+</body>
+
+</html>
