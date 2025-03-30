@@ -53,7 +53,6 @@
     <input type="email" id="loginEmail" placeholder="Email" />
     <input type="password" id="loginPassword" placeholder="Password" />
     <button onclick="emailLogin()">Login via Email</button><br /><br />
-
     <button onclick="googleLogin()">Login via Google</button>
   </div>
 
@@ -63,8 +62,14 @@
     <input type="email" id="regEmail" placeholder="Email" />
     <input type="password" id="regPassword" placeholder="Password" />
     <button onclick="emailRegister()">Register via Email</button><br /><br />
-
     <button onclick="googleLogin()">Register via Google</button>
+  </div>
+
+  <!-- EMAIL NOT VERIFIED -->
+  <div id="notVerified" class="hidden">
+    <h4>⚠️ Email не підтверджено</h4>
+    <p>Будь ласка, перевірь пошту та підтверди свій email.</p>
+    <button onclick="resendVerification()">📩 Надіслати ще раз</button>
   </div>
 
   <!-- COMPLETE PROFILE -->
@@ -85,7 +90,6 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    // UI Tabs
     function switchTab(tab) {
       document.getElementById('loginBlock').classList.add('hidden');
       document.getElementById('registerBlock').classList.add('hidden');
@@ -99,9 +103,8 @@
       }
     }
 
-    let confirmationResult;
+    let currentUser;
 
-    // Email login
     async function emailLogin() {
       const email = document.getElementById("loginEmail").value;
       const password = document.getElementById("loginPassword").value;
@@ -113,19 +116,19 @@
       }
     }
 
-    // Email register
     async function emailRegister() {
       const email = document.getElementById("regEmail").value;
       const password = document.getElementById("regPassword").value;
       try {
         const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        await cred.user.sendEmailVerification();
+        alert("📩 Ми надіслали листа для підтвердження email");
         await handleLogin(cred.user);
       } catch (err) {
         alert("❌ Email Register Failed: " + err.message);
       }
     }
 
-    // Google login/register
     async function googleLogin() {
       const provider = new firebase.auth.GoogleAuthProvider();
       try {
@@ -135,12 +138,27 @@
         alert("❌ Google Login Failed: " + err.message);
       }
     }
-    // Complete registration
+
     async function handleLogin(user) {
+      currentUser = user;
+      await user.reload();
+
+      if (!user.emailVerified && user.providerData[0].providerId === "password") {
+        document.getElementById("notVerified").classList.remove("hidden");
+        return;
+      }
+
       const token = await user.getIdToken();
       document.getElementById("tokenOutput").value = token;
       window.firebaseUid = user.uid;
       document.getElementById("registration").classList.remove("hidden");
+    }
+
+    async function resendVerification() {
+      if (currentUser) {
+        await currentUser.sendEmailVerification();
+        alert("📨 Лист повторно надіслано");
+      }
     }
 
     async function completeRegistration() {
