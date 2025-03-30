@@ -54,12 +54,6 @@
     <input type="password" id="loginPassword" placeholder="Password" />
     <button onclick="emailLogin()">Login via Email</button><br /><br />
 
-    <input type="tel" id="loginPhone" placeholder="+380..." />
-    <div id="loginRecaptcha"></div>
-    <button onclick="startPhoneLogin()">Send Code</button>
-    <input type="text" id="loginCode" placeholder="SMS Code" />
-    <button onclick="confirmPhoneLogin()">Confirm Code</button><br /><br />
-
     <button onclick="googleLogin()">Login via Google</button>
   </div>
 
@@ -69,12 +63,6 @@
     <input type="email" id="regEmail" placeholder="Email" />
     <input type="password" id="regPassword" placeholder="Password" />
     <button onclick="emailRegister()">Register via Email</button><br /><br />
-
-    <input type="tel" id="regPhone" placeholder="+380..." />
-    <div id="regRecaptcha"></div>
-    <button onclick="startPhoneRegister()">Send Code</button>
-    <input type="text" id="regCode" placeholder="SMS Code" />
-    <button onclick="confirmPhoneRegister()">Confirm Code</button><br /><br />
 
     <button onclick="googleLogin()">Register via Google</button>
   </div>
@@ -147,39 +135,6 @@
         alert("❌ Google Login Failed: " + err.message);
       }
     }
-
-    // Phone login
-    function startPhoneLogin() {
-      const phone = document.getElementById("loginPhone").value;
-      const appVerifier = new firebase.auth.RecaptchaVerifier("loginRecaptcha", { size: 'invisible' });
-      firebase.auth().signInWithPhoneNumber(phone, appVerifier).then(res => {
-        confirmationResult = res;
-        alert("✅ Code sent!");
-      }).catch(err => alert("❌ Phone Login Failed: " + err.message));
-    }
-
-    function confirmPhoneLogin() {
-      const code = document.getElementById("loginCode").value;
-      confirmationResult.confirm(code).then(res => handleLogin(res.user))
-        .catch(err => alert("❌ Code Error: " + err.message));
-    }
-
-    // Phone register (те ж саме)
-    function startPhoneRegister() {
-      const phone = document.getElementById("regPhone").value;
-      const appVerifier = new firebase.auth.RecaptchaVerifier("regRecaptcha", { size: 'invisible' });
-      firebase.auth().signInWithPhoneNumber(phone, appVerifier).then(res => {
-        confirmationResult = res;
-        alert("✅ Code sent!");
-      }).catch(err => alert("❌ Phone Register Failed: " + err.message));
-    }
-
-    function confirmPhoneRegister() {
-      const code = document.getElementById("regCode").value;
-      confirmationResult.confirm(code).then(res => handleLogin(res.user))
-        .catch(err => alert("❌ Code Error: " + err.message));
-    }
-
     // Complete registration
     async function handleLogin(user) {
       const token = await user.getIdToken();
