@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 
 <head>
   <meta charset="UTF-8" />
-  <title>Firebase Login & Registration</title>
+  <title>CryptoDemon Auth</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <style>
@@ -24,26 +24,65 @@
     textarea {
       width: 80%;
     }
+
+    .tab {
+      display: inline-block;
+      padding: 10px;
+      margin: 5px;
+      background-color: #eee;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background-color: #ccc;
+    }
   </style>
 </head>
 
 <body>
-  <h2>🔐 Firebase Auth</h2>
+  <h2>🔥 CryptoDemon Auth</h2>
+
   <div>
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="emailLogin()">Login via Email</button>
-    <br /><br />
+    <span class="tab active" onclick="switchTab('login')">🔑 Login</span>
+    <span class="tab" onclick="switchTab('register')">📝 Register</span>
+  </div>
+
+  <!-- LOGIN BLOCK -->
+  <div id="loginBlock">
+    <h3>🔐 Увійти</h3>
+    <input type="email" id="loginEmail" placeholder="Email" />
+    <input type="password" id="loginPassword" placeholder="Password" />
+    <button onclick="emailLogin()">Login via Email</button><br /><br />
+
+    <input type="tel" id="loginPhone" placeholder="+380..." />
+    <div id="loginRecaptcha"></div>
+    <button onclick="startPhoneLogin()">Send Code</button>
+    <input type="text" id="loginCode" placeholder="SMS Code" />
+    <button onclick="confirmPhoneLogin()">Confirm Code</button><br /><br />
+
     <button onclick="googleLogin()">Login via Google</button>
   </div>
 
-  <br />
+  <!-- REGISTER BLOCK -->
+  <div id="registerBlock" class="hidden">
+    <h3>🆕 Зареєструватися</h3>
+    <input type="email" id="regEmail" placeholder="Email" />
+    <input type="password" id="regPassword" placeholder="Password" />
+    <button onclick="emailRegister()">Register via Email</button><br /><br />
 
+    <input type="tel" id="regPhone" placeholder="+380..." />
+    <div id="regRecaptcha"></div>
+    <button onclick="startPhoneRegister()">Send Code</button>
+    <input type="text" id="regCode" placeholder="SMS Code" />
+    <button onclick="confirmPhoneRegister()">Confirm Code</button><br /><br />
+
+    <button onclick="googleLogin()">Register via Google</button>
+  </div>
+
+  <!-- COMPLETE PROFILE -->
   <div id="registration" class="hidden">
     <h3>👤 Доповнити профіль</h3>
-    <input type="text" id="username" placeholder="Username" /><br />
-    <input type="text" id="country" placeholder="Country" /><br />
-    <input type="text" id="currency" placeholder="Preferred Currency" /><br />
+    <input type="text" id="nickname" placeholder="Nickname" /><br />
     <button onclick="completeRegistration()">📩 Зареєструвати</button>
   </div>
 
@@ -58,37 +97,99 @@
     };
     firebase.initializeApp(firebaseConfig);
 
+    // UI Tabs
+    function switchTab(tab) {
+      document.getElementById('loginBlock').classList.add('hidden');
+      document.getElementById('registerBlock').classList.add('hidden');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      if (tab === 'login') {
+        document.getElementById('loginBlock').classList.remove('hidden');
+        document.querySelectorAll('.tab')[0].classList.add('active');
+      } else {
+        document.getElementById('registerBlock').classList.remove('hidden');
+        document.querySelectorAll('.tab')[1].classList.add('active');
+      }
+    }
+
+    let confirmationResult;
+
+    // Email login
     async function emailLogin() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
       try {
         const cred = await firebase.auth().signInWithEmailAndPassword(email, password);
-        const token = await cred.user.getIdToken();
-        document.getElementById("tokenOutput").value = token;
-        document.getElementById("registration").classList.remove("hidden");
-        window.firebaseUid = cred.user.uid;
+        await handleLogin(cred.user);
       } catch (err) {
         alert("❌ Email Login Failed: " + err.message);
       }
     }
 
+    // Email register
+    async function emailRegister() {
+      const email = document.getElementById("regEmail").value;
+      const password = document.getElementById("regPassword").value;
+      try {
+        const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        await handleLogin(cred.user);
+      } catch (err) {
+        alert("❌ Email Register Failed: " + err.message);
+      }
+    }
+
+    // Google login/register
     async function googleLogin() {
       const provider = new firebase.auth.GoogleAuthProvider();
       try {
         const result = await firebase.auth().signInWithPopup(provider);
-        const token = await result.user.getIdToken();
-        document.getElementById("tokenOutput").value = token;
-        document.getElementById("registration").classList.remove("hidden");
-        window.firebaseUid = result.user.uid;
+        await handleLogin(result.user);
       } catch (err) {
         alert("❌ Google Login Failed: " + err.message);
       }
     }
 
+    // Phone login
+    function startPhoneLogin() {
+      const phone = document.getElementById("loginPhone").value;
+      const appVerifier = new firebase.auth.RecaptchaVerifier("loginRecaptcha", { size: 'invisible' });
+      firebase.auth().signInWithPhoneNumber(phone, appVerifier).then(res => {
+        confirmationResult = res;
+        alert("✅ Code sent!");
+      }).catch(err => alert("❌ Phone Login Failed: " + err.message));
+    }
+
+    function confirmPhoneLogin() {
+      const code = document.getElementById("loginCode").value;
+      confirmationResult.confirm(code).then(res => handleLogin(res.user))
+        .catch(err => alert("❌ Code Error: " + err.message));
+    }
+
+    // Phone register (те ж саме)
+    function startPhoneRegister() {
+      const phone = document.getElementById("regPhone").value;
+      const appVerifier = new firebase.auth.RecaptchaVerifier("regRecaptcha", { size: 'invisible' });
+      firebase.auth().signInWithPhoneNumber(phone, appVerifier).then(res => {
+        confirmationResult = res;
+        alert("✅ Code sent!");
+      }).catch(err => alert("❌ Phone Register Failed: " + err.message));
+    }
+
+    function confirmPhoneRegister() {
+      const code = document.getElementById("regCode").value;
+      confirmationResult.confirm(code).then(res => handleLogin(res.user))
+        .catch(err => alert("❌ Code Error: " + err.message));
+    }
+
+    // Complete registration
+    async function handleLogin(user) {
+      const token = await user.getIdToken();
+      document.getElementById("tokenOutput").value = token;
+      window.firebaseUid = user.uid;
+      document.getElementById("registration").classList.remove("hidden");
+    }
+
     async function completeRegistration() {
-      const username = document.getElementById("username").value;
-      const country = document.getElementById("country").value;
-      const currency = document.getElementById("currency").value;
+      const nickname = document.getElementById("nickname").value;
       const token = document.getElementById("tokenOutput").value;
 
       const res = await fetch("http://localhost:3000/users/register", {
@@ -99,9 +200,7 @@
         },
         body: JSON.stringify({
           firebaseUid: window.firebaseUid,
-          username,
-          country,
-          preferredCurrency: currency
+          username: nickname
         }),
       });
 
