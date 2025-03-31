@@ -133,6 +133,7 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       try {
         const result = await firebase.auth().signInWithPopup(provider);
+        alert("ABOBA: ");
         await handleLogin(result.user);
       } catch (err) {
         alert("❌ Google Login Failed: " + err.message);
