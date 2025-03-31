@@ -75,13 +75,12 @@
   <!-- COMPLETE PROFILE -->
   <div id="registration" class="hidden">
     <h3>👤 Доповнити профіль</h3>
-    <input type="text" id="nickname" placeholder="Nickname" /><br />
+    <input type="text" id="username" placeholder="username" /><br />
     <button onclick="completeRegistration()">📩 Зареєструвати</button>
   </div>
 
   <h4>🔑 Token:</h4>
   <textarea id="tokenOutput" rows="6" readonly></textarea>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAy0wXYbwn9akfxSYSROt3qu8KkmcvzebA",
@@ -151,7 +150,21 @@
       const token = await user.getIdToken();
       document.getElementById("tokenOutput").value = token;
       window.firebaseUid = user.uid;
-      document.getElementById("registration").classList.remove("hidden");
+
+      // 🔍 Перевірка чи користувач існує
+      const res = await fetch("https://crypto-demon-back.onrender.com/users/me", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        alert("✅ Вхід виконано");
+      } else {
+        // Показуємо форму реєстрації, якщо юзер ще не створений
+        document.getElementById("registration").classList.remove("hidden");
+      }
     }
 
     async function resendVerification() {
@@ -162,10 +175,10 @@
     }
 
     async function completeRegistration() {
-      const nickname = document.getElementById("nickname").value;
+      const username = document.getElementById("username").value;
       const token = document.getElementById("tokenOutput").value;
 
-      const res = await fetch("http://localhost:3000/users/register", {
+      const res = await fetch("https://crypto-demon-back.onrender.com/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -173,18 +186,20 @@
         },
         body: JSON.stringify({
           firebaseUid: window.firebaseUid,
-          username: nickname
+          username: username
         }),
       });
 
       if (res.ok) {
         alert("✅ Реєстрація завершена!");
+        document.getElementById("registration").classList.add("hidden");
       } else {
         const err = await res.text();
         alert("❌ Помилка реєстрації: " + err);
       }
     }
   </script>
+
 </body>
 
 </html>
