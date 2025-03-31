@@ -178,7 +178,7 @@
       const username = document.getElementById("username").value;
       const token = document.getElementById("tokenOutput").value;
 
-      const res = await fetch("https://crypto-demon-back.onrender.com/users/register", {
+      const res = await fetch("https://localhost:3000/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
