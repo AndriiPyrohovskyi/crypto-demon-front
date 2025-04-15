@@ -154,19 +154,38 @@
       window.firebaseUid = user.uid;
 
       // 🔍 Перевірка чи користувач існує
-      const res = await fetch("https://localhost:3000/users/me", {
-        method: "GET",
+      const res = await fetch("http://localhost:3000/auth/verify", {
+        method: "POST", 
         headers: {
-          "Authorization": `Bearer ${token}`
-        }
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          "token": token
+        })
       });
 
       if (res.ok) {
-        alert("✅ Вхід виконано");
-      } else {
-        // Показуємо форму реєстрації, якщо юзер ще не створений
+    const data = await res.json();
+    alert("✅ Вхід виконано");
+    console.log("Користувач знайдений:", data.user);
+  } else {
+    const errorData = await res.json();
+    switch (errorData.message) {
+      case "Invalid or expired token":
+        alert("❌ Токен недійсний або прострочений. Будь ласка, увійдіть знову.");
+        break;
+      case "User not found":
+        alert("❌ Користувача не знайдено. Будь ласка, зареєструйтесь.");
         document.getElementById("registration").classList.remove("hidden");
-      }
+        break;
+      case "Email is required":
+        alert("❌ Email відсутній у токені. Зверніться до адміністратора.");
+        break;
+      default:
+        alert("❌ Невідома помилка. Спробуйте пізніше.");
+        console.error("Помилка:", errorData);
+    }
+  }
     }
 
     async function resendVerification() {
@@ -180,13 +199,14 @@
       const username = document.getElementById("username").value;
       const token = document.getElementById("tokenOutput").value;
 
-      const res = await fetch("https://localhost:3000/users/register", {
+      const res = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
+          email: currentUser.email,
           firebaseUid: window.firebaseUid,
           username: username
         }),
