@@ -1,12 +1,33 @@
 import { auth } from '../../services/firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
+  const { setUser } = useAuth();
+
   const emailLogin = async (email: string, password: string) => {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      alert('✅ Вхід виконано');
-      console.log('Користувач:', cred.user);
+      const token = await cred.user?.getIdToken(); // Отримуємо токен
+
+      if (token) {
+        const response = await fetch('https://crypto-demon-back.onrender.com/auth/verify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+          alert('✅ Вхід виконано');
+        } else {
+          console.error('Помилка сервера:', await response.text());
+        }
+      }
     } catch (err: any) {
       alert('❌ Помилка входу: ' + err.message);
     }
@@ -16,8 +37,27 @@ const Login = () => {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      alert('✅ Вхід через Google виконано');
-      console.log('Користувач:', result.user);
+      const token = await result.user?.getIdToken(); // Отримуємо токен
+
+      if (token) {
+        // Надсилаємо токен на сервер для перевірки
+        const response = await fetch('https://crypto-demon-back.onrender.com/auth/verify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user); // Зберігаємо дані користувача в глобальному стані
+          alert('✅ Вхід через Google виконано');
+        } else {
+          console.error('Помилка сервера:', await response.text());
+        }
+      }
     } catch (err: any) {
       alert('❌ Помилка входу через Google: ' + err.message);
     }

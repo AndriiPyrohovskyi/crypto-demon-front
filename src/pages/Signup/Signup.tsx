@@ -1,14 +1,27 @@
 import { auth } from '../../services/firebase';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { useAuth } from '../../context/AuthContext';
 
 const Signup = () => {
+  const { setUser } = useAuth();
+
   const emailRegister = async (email: string, password: string) => {
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       await sendEmailVerification(cred.user);
-      alert('📩 Ми надіслали листа для підтвердження email');
-      console.log('Користувач:', cred.user);
-    } catch (err: any) {
+      const uid = await cred.user?.uid;
+
+      if (uid) {
+        const response = await fetch(`https://crypto-demon-back.onrender.com/auth/user?uid=${uid}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data);
+          alert('📩 Ми надіслали листа для підтвердження email');
+          }
+        }
+      }
+     catch (err: any) {
       alert('❌ Помилка реєстрації: ' + err.message);
     }
   };

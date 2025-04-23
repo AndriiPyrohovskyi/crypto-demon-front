@@ -1,0 +1,41 @@
+.trade-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .trade-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .trade-card-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  
+  .status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.9rem;
+    text-transform: capitalize;
+  }
+  
+  .status.відкритий {
+    background-color: #28a745;
+  }
+  
+  .status.закритий {
+    background-color: #dc3545;
+  }
+  
+  .trade-card-body p {
+    margin: 0.25rem 0;
+  }
+  

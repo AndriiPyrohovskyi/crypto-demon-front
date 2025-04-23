@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { auth } from '../../services/firebase'; 
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Button from '../../components/Button/Button';
 import Dropdown from '../../components/Dropdown/Dropdown';
@@ -7,6 +8,45 @@ import './Profile.css';
 
 const Profile = () => {
   const [activeSection, setActiveSection] = useState('profile');
+  const [user, setUser] = useState<{
+    id: string;
+    username: string;
+    email: string;
+    role: string;
+    createdAt: string;
+    balance: number;
+    avatar_url: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          console.warn('Користувач не авторизований');
+          return;
+        }
+        const token = await currentUser.getIdToken();
+
+        const response = await fetch('https://crypto-demon-back.onrender.com/auth/user', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data);
+        } else {
+          console.error('Помилка отримання даних користувача:', await response.text());
+        }
+      } catch (error) {
+        console.error('Помилка отримання даних користувача:', error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -14,39 +54,53 @@ const Profile = () => {
         return (
           <div className="profile__content">
             <h2>Профіль</h2>
-            <div className="profile__details">
-              <div className="profile__avatar"></div>
-              <div className="profile__info">
-                <p>id: 12345</p>
-                <p>username: CryptoUser</p>
-                <p>email: user@example.com</p>
-                <p>role: user</p>
-                <p>createdAt: 2025-01-01</p>
-                <p>Balance: <strong>0.00 $</strong></p>
-                <Button text="Edit" />
+            {user ? (
+              <div className="profile__details">
+                <div className="profile__avatar">
+                  {user.avatar_url ? (
+                    <img src={user.avatar_url} alt="Avatar" />
+                  ) : (
+                    <div className="profile__avatar-placeholder">👤</div>
+                  )}
+                </div>
+                <div className="profile__info">
+                  <p>id: {user.id}</p>
+                  <p>username: {user.username}</p>
+                  <p>email: {user.email}</p>
+                  <p>role: {user.role}</p>
+                  <p>createdAt: {user.createdAt}</p>
+                  <p>
+                    Balance: <strong>{user.balance.toFixed(2)} $</strong>
+                  </p>
+                  <Button text="Edit" />
+                </div>
               </div>
-            </div>
+            ) : (
+              <p>Завантаження...</p>
+            )}
           </div>
         );
       case 'transactions':
         return (
           <div className="profile__content">
             <h2>Історія транзакцій</h2>
-            <Table columns={['Дата', 'Сума', 'Тип']} data={[]} />
           </div>
         );
       case 'trading':
         return (
           <div className="profile__content">
             <h2>Історія трейдингу</h2>
-            <Table columns={['Дата', 'Актив', 'Сума', 'Статус']} data={[]} />
           </div>
         );
       case 'statistics':
         return (
           <div className="profile__content">
             <h2>Статистика</h2>
-            <Dropdown options={['Графік 1', 'Графік 2', 'Графік 3']} />
+            <Dropdown options={[
+              {label: "Графік 1", value: "graph1"},
+              {label: "Графік 2", value: "graph2"},
+              {label: "Графік 3", value: "graph3"}
+              ]} />
             <div className="profile__chart">Тут буде графік</div>
           </div>
         );
