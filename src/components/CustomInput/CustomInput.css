@@ -1,0 +1,17 @@
+.custom_input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px;
+  }
+  
+  .custom_input input {
+    padding: 5px;
+    font-size: 14px;
+    flex: 1;
+  }
+  
+  .input_symbol {
+    font-size: 14px;
+    color: #555;
+  }

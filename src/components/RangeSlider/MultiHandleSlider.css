@@ -1,0 +1,49 @@
+/* 
+.slider-track {
+    position: relative;
+    height: 40px;
+    margin-top: 10px;
+  }
+  
+  .slider-thumb {
+    position: absolute;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .slider-thumb input[type="range"] {
+    position: absolute;
+    top: 20px;
+    width: 100px;
+    transform: translateX(-50%);
+  }
+   */
+  .tooltip {
+    position: absolute;
+    top: -2px;
+    background: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    transform: translateY(-100%);
+    z-index: 1;
+  }
+/*   
+  .range-thumb {
+    height: 12px;
+    width: 12px;
+    border-radius: 10%;
+    background-color: #548bf4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+   */
+  
