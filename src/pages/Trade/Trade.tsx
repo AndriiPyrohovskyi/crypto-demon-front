@@ -101,6 +101,7 @@ const Trade = () => {
     };
     const [position, setPosition] = useState<"long" | "short" | null>(null);
     const [leverage, setLeverage] = useState(Number);
+    console.log("Кредитне плече:", leverage);
     return (
       <div className="trade_container">
         <div className="create_order_container">

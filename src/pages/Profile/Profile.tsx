@@ -3,7 +3,6 @@ import { auth } from '../../services/firebase';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Button from '../../components/Button/Button';
 import Dropdown from '../../components/Dropdown/Dropdown';
-import Table from '../../components/Table/Table';
 import './Profile.css';
 
 const Profile = () => {
