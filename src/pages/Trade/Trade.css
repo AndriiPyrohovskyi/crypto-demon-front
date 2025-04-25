@@ -1,6 +1,6 @@
 .trade_container {
   display: grid;
-  grid-template-rows: 500px 1fr;
+  grid-template-rows: 600px 1fr;
 }
 
 .create_order_container {
@@ -9,7 +9,7 @@
 
 .instruments_container {
   display: grid;
-  grid-template-columns: 1fr 2fr 2fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
 }
 
@@ -98,6 +98,16 @@
     flex-direction: column;
     gap: 10px;
     min-width: max-content;
+  }
+
+
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
+  h4 {
+    margin: 0;
+    padding: 0;
   }
   /* .view_content {
     margin-top: 10px;

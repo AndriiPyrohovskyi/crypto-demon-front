@@ -8,28 +8,28 @@ const Login = () => {
   const emailLogin = async (email: string, password: string) => {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      const token = await cred.user?.getIdToken(); // Отримуємо токен
+      const token = await cred.user.getIdToken();
+      localStorage.setItem('token', token);
 
-      if (token) {
-        const response = await fetch('https://crypto-demon-back.onrender.com/auth/verify', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ token }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-          alert('✅ Вхід виконано');
-        } else {
-          console.error('Помилка сервера:', await response.text());
-        }
+      const res = await fetch('https://crypto-demon-back.onrender.com/auth/user', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        alert('✅ Вхід виконано');
+      } else {
+        const errMsg = await res.text();
+        console.error('Помилка завантаження користувача:', errMsg);
+        alert('❌ Помилка входу: ' + errMsg);
       }
-    } catch (err: any) {
-      alert('❌ Помилка входу: ' + err.message);
+    } catch (error: any) {
+      alert('❌ Помилка входу: ' + error.message);
     }
   };
 
@@ -37,43 +37,41 @@ const Login = () => {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      const token = await result.user?.getIdToken(); // Отримуємо токен
+      const token = await result.user.getIdToken();
+      localStorage.setItem('token', token);
 
-      if (token) {
-        // Надсилаємо токен на сервер для перевірки
-        const response = await fetch('https://crypto-demon-back.onrender.com/auth/verify', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ token }),
-        });
+      const res = await fetch('https://crypto-demon-back.onrender.com/auth/user', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user); // Зберігаємо дані користувача в глобальному стані
-          alert('✅ Вхід через Google виконано');
-        } else {
-          console.error('Помилка сервера:', await response.text());
-        }
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        alert('✅ Вхід через Google виконано');
+      } else {
+        const errMsg = await res.text();
+        console.error('Помилка завантаження користувача:', errMsg);
+        alert('❌ Помилка входу через Google: ' + errMsg);
       }
-    } catch (err: any) {
-      alert('❌ Помилка входу через Google: ' + err.message);
+    } catch (error: any) {
+      alert('❌ Помилка входу через Google: ' + error.message);
     }
   };
 
   return (
     <div>
       <h2>Вхід</h2>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          const email = (e.target as any).email.value;
-          const password = (e.target as any).password.value;
-          emailLogin(email, password);
-        }}
-      >
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        const target = e.target as any;
+        const email = target.email.value;
+        const password = target.password.value;
+        emailLogin(email, password);
+      }}>
         <div>
           <label htmlFor="email">Email:</label>
           <input type="email" id="email" name="email" required />
