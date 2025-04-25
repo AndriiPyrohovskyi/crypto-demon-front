@@ -1,51 +1,13 @@
-import { useEffect, useState } from 'react';
-import { auth } from '../../services/firebase'; 
+import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Button from '../../components/Button/Button';
 import Dropdown from '../../components/Dropdown/Dropdown';
 import './Profile.css';
 
 const Profile = () => {
+  const { user } = useAuth();
   const [activeSection, setActiveSection] = useState('profile');
-  const [user, setUser] = useState<{
-    id: string;
-    username: string;
-    email: string;
-    role: string;
-    createdAt: string;
-    balance: number;
-    avatar_url: string | null;
-  } | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const currentUser = auth.currentUser;
-        if (!currentUser) {
-          console.warn('Користувач не авторизований');
-          return;
-        }
-        const token = await currentUser.getIdToken();
-
-        const response = await fetch('https://crypto-demon-back.onrender.com/auth/user', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data);
-        } else {
-          console.error('Помилка отримання даних користувача:', await response.text());
-        }
-      } catch (error) {
-        console.error('Помилка отримання даних користувача:', error);
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -67,9 +29,9 @@ const Profile = () => {
                   <p>username: {user.username}</p>
                   <p>email: {user.email}</p>
                   <p>role: {user.role}</p>
-                  <p>createdAt: {user.createdAt}</p>
+                  <p>createdAt: {user.created_at}</p>
                   <p>
-                    Balance: <strong>{user.balance.toFixed(2)} $</strong>
+                    Balance: <strong>{user.balance} $</strong>
                   </p>
                   <Button text="Edit" />
                 </div>
@@ -96,10 +58,10 @@ const Profile = () => {
           <div className="profile__content">
             <h2>Статистика</h2>
             <Dropdown options={[
-              {label: "Графік 1", value: "graph1"},
-              {label: "Графік 2", value: "graph2"},
-              {label: "Графік 3", value: "graph3"}
-              ]} />
+              { label: "Графік 1", value: "graph1" },
+              { label: "Графік 2", value: "graph2" },
+              { label: "Графік 3", value: "graph3" }
+            ]} />
             <div className="profile__chart">Тут буде графік</div>
           </div>
         );

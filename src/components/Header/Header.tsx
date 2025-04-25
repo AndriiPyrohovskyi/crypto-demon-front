@@ -1,33 +1,9 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 
 const Header = () => {
-  const [user, setUser] = useState<{ username: string; avatar_url: string | null } | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        const response = await fetch('https://crypto-demon-back.onrender.com/auth/user', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data);
-        }
-      } catch (error) {
-        console.error('Помилка отримання даних користувача:', error);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  const { user, logout } = useAuth();
 
   return (
     <header className="header">
@@ -41,14 +17,16 @@ const Header = () => {
             <li><Link to="/savings">Збереження</Link></li>
             {user ? (
               <>
+                <li>{Number(user.balance).toFixed(2)}$</li>
                 <li className="header__profile">
                   {user.avatar_url ? (
                     <img src={user.avatar_url} alt="Avatar" className="header__avatar" />
                   ) : (
                     <div className="header__avatar-placeholder">👤</div>
                   )}
-                  <span className="header__username">{user.username}</span>
+                  <span className="header__username"><Link to="/profile">{user.username}</Link></span>
                 </li>
+                <li><button onClick={logout}>Вийти</button></li>
               </>
             ) : (
               <>

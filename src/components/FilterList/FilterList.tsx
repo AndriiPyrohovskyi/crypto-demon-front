@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./FilterList.css";
-import MultiHandleSlider from "../RangeSlider/MultiHandleSlider";
+import MultiHandleSlider from "../MultiHandleSlider/MultiHandleSlider";
 
 interface FilterOption {
   label: string;

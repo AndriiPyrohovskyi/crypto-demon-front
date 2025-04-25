@@ -1,40 +1,33 @@
 import React from 'react';
 import './CustomInput.css';
 
-interface CustomInputProps {
+export interface CustomInputProps {
+  symbol: string;
   onChange: (value: string | number) => void;
-  placeholder?: string;
-  symbol?: string;
-  type?: 'text' | 'number';
-  min?: number;
-  max?: number;
+  type: string;
+  min: number;
+  max: number;
+  value?: string;
+  step?: number;
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
-  onChange,
-  placeholder,
-  symbol,
-  type = 'text',
-  min,
-  max,
+  symbol, onChange, type = 'text', min, max, value, step
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (type === 'number') {
-      onChange(Number(value));
-    } else {
-      onChange(value);
-    }
+    // передаємо строку, а в батьківському onChange конвертуємо
+    onChange(type === 'number' ? e.target.value : e.target.value);
   };
 
   return (
     <div className="custom_input">
       <input
         type={type}
+        value={value}
         onChange={handleChange}
-        placeholder={placeholder}
         min={type === 'number' ? min : undefined}
         max={type === 'number' ? max : undefined}
+        step={type === 'number' ? step : undefined}   // ← прокидаємо
       />
       {symbol && <span className="input_symbol">{symbol}</span>}
     </div>
