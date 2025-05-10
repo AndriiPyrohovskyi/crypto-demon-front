@@ -1,9 +1,39 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useEffect, useState } from 'react';
 import './Header.css';
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const token = localStorage.getItem('token');
+  const [balance, setBalance] = useState<number | null>(null);
+
+  const fetchBalance = async () => {
+    try {
+      const res = await fetch('https://crypto-demon-back.onrender.com/user-currency/balance', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        console.log('Balance data:', data);
+        setBalance(data);
+      } else {
+        console.error('Error fetching balance:', res.statusText);
+      }
+    } catch (err) {
+      console.error('Error fetching balance:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchBalance();
+    }
+  }, [user]);
 
   return (
     <header className="header">
@@ -17,7 +47,9 @@ const Header = () => {
             <li><Link to="/savings">Збереження</Link></li>
             {user ? (
               <>
-                <li>{Number(user.balance).toFixed(2)}$</li>
+                <li>
+                  {balance !== null && !isNaN(balance) ? `${balance.toFixed(2)}$` : 'Завантаження...'}
+                </li>
                 <li className="header__profile">
                   {user.avatar_url ? (
                     <img src={user.avatar_url} alt="Avatar" className="header__avatar" />

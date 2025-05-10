@@ -34,18 +34,29 @@ const FilterList: React.FC<FilterListProps> = ({ title, options, onFilterChange 
     optMax: number = 100
   ) => {
     const current = selected[label];
+    const option = options.find(opt => opt.label === label);
+
     if (current) {
       const updated = { ...selected };
       delete updated[label];
       setSelected(updated);
       onFilterChange(updated);
     } else {
-      const defaultValues =
-        count > 1
-          ? Array.from({ length: count }, (_, i) =>
-              Math.round(((optMax - optMin) / (count - 1)) * i + optMin).toString()
-            )
-          : [optMin.toString()];
+      let defaultValues: string[];
+      if (option && 'value' in option && option.value !== undefined) {
+        defaultValues = [option.value ? option.value.toString() : ""];
+      } else {
+        // existing numeric default logic
+        defaultValues =
+          count > 1
+            ? Array.from({ length: count }, (_, i) =>
+                Math.round(((optMax - optMin) / (count - 1)) * i + optMin).toString()
+              )
+            : count === 1
+            ? [""]
+            : [optMin.toString()];
+      }
+
       update(label, defaultValues);
     }
   };

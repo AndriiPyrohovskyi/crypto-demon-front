@@ -1,80 +1,33 @@
 import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/Sidebar/Sidebar';
-import Button from '../../components/Button/Button';
-import Dropdown from '../../components/Dropdown/Dropdown';
 import './Profile.css';
+import ProfileContent from './components/ProfileContent/ProfileContent';
+import ProfileStats from './components/ProfileStats/ProfileStats';
+import ProfileBalance from './components/ProfileBalance/ProfileBalance';
+import { useAuth } from '../../context/AuthContext';
+import AdminPanel from './components/AdminPanel/AdminPanel';
 
 const Profile = () => {
-  const { user } = useAuth();
   const [activeSection, setActiveSection] = useState('profile');
+  const { user } = useAuth();
 
   const renderContent = () => {
     switch (activeSection) {
       case 'profile':
         return (
-          <div className="profile__content">
-            <h2>Профіль</h2>
-            {user ? (
-              <div className="profile__details">
-                <div className="profile__avatar">
-                  {user.avatar_url ? (
-                    <img src={user.avatar_url} alt="Avatar" />
-                  ) : (
-                    <div className="profile__avatar-placeholder">👤</div>
-                  )}
-                </div>
-                <div className="profile__info">
-                  <p>id: {user.id}</p>
-                  <p>username: {user.username}</p>
-                  <p>email: {user.email}</p>
-                  <p>role: {user.role}</p>
-                  <p>createdAt: {user.created_at}</p>
-                  <p>
-                    Balance: <strong>{user.balance} $</strong>
-                  </p>
-                  <Button text="Edit" />
-                </div>
-              </div>
-            ) : (
-              <p>Завантаження...</p>
-            )}
-          </div>
-        );
-      case 'transactions':
-        return (
-          <div className="profile__content">
-            <h2>Історія транзакцій</h2>
-          </div>
-        );
-      case 'trading':
-        return (
-          <div className="profile__content">
-            <h2>Історія трейдингу</h2>
-          </div>
+          <ProfileContent/>
         );
       case 'statistics':
         return (
-          <div className="profile__content">
-            <h2>Статистика</h2>
-            <Dropdown options={[
-              { label: "Графік 1", value: "graph1" },
-              { label: "Графік 2", value: "graph2" },
-              { label: "Графік 3", value: "graph3" }
-            ]} />
-            <div className="profile__chart">Тут буде графік</div>
-          </div>
+          <ProfileStats/>
         );
       case 'balance':
         return (
-          <div className="profile__content">
-            <h2>Операції над балансом</h2>
-            <div className="profile__balance">
-              <p>Баланс: 0.00 $</p>
-              <Button text="Поповнити баланс" />
-              <Button text="Вивести кошти" />
-            </div>
-          </div>
+          <ProfileBalance/>
+        );
+      case 'admin':
+        return (
+          <AdminPanel/>
         );
       default:
         return null;
@@ -86,11 +39,12 @@ const Profile = () => {
       <Sidebar
         items={[
           { label: 'Профіль', value: 'profile' },
-          { label: 'Історія транзакцій', value: 'transactions' },
-          { label: 'Історія трейдингу', value: 'trading' },
           { label: 'Статистика', value: 'statistics' },
           { label: 'Операції над балансом', value: 'balance' },
           { label: 'Видалити мій акаунт', value: 'delete' },
+          ...(user?.role === 'admin'
+            ? [{ label: 'Адмін панель', value: 'admin' }]
+            : []),
         ]}
         onSelect={setActiveSection}
         activeItem={activeSection}

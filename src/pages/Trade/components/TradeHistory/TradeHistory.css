@@ -1,0 +1,77 @@
+
+.history_container {
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+  }
+  
+  .side_instruments {
+      grid-column: 1;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .view_mode_selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .view_mode_option {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #f9f9f9;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    
+    .view_mode_option.active {
+      background-color: #007bff;
+      border-color: #0056b3;
+      color: white;
+    }
+    
+    .view_mode_option .icon {
+      font-size: 20px;
+    }
+    .sort_mode_container {
+      align-self: flex-start;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .sort_mode_container h3{
+      margin: 0;
+      font-size: 18px;
+    }
+    .trade_content {
+      grid-column: 2;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    .trades_table {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: max-content;
+    }
+  
+  
+    h3 {
+      margin: 0;
+      padding: 0;
+    }
+    h4 {
+      margin: 0;
+      padding: 0;
+    }

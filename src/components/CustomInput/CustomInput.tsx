@@ -2,20 +2,20 @@ import React from 'react';
 import './CustomInput.css';
 
 export interface CustomInputProps {
-  symbol: string;
+  symbol?: string;
   onChange: (value: string | number) => void;
+  onBlur?: () => void;
   type: string;
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
   value?: string;
   step?: number;
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
-  symbol, onChange, type = 'text', min, max, value, step
+  symbol, onChange, onBlur, type = 'text', min, max, value, step
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // передаємо строку, а в батьківському onChange конвертуємо
     onChange(type === 'number' ? e.target.value : e.target.value);
   };
 
@@ -25,9 +25,10 @@ const CustomInput: React.FC<CustomInputProps> = ({
         type={type}
         value={value}
         onChange={handleChange}
+        onBlur={onBlur}
         min={type === 'number' ? min : undefined}
         max={type === 'number' ? max : undefined}
-        step={type === 'number' ? step : undefined}   // ← прокидаємо
+        step={type === 'number' ? step : undefined}
       />
       {symbol && <span className="input_symbol">{symbol}</span>}
     </div>

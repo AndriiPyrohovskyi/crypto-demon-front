@@ -5,6 +5,7 @@ interface DropdownOption {
   label: string;
   value: string;
   icon?: string;
+  balanceInUSD?: number;
 }
 
 interface DropdownProps {
@@ -47,6 +48,9 @@ const Dropdown: React.FC<DropdownProps> = ({ options, placeholder, onChange }) =
             <div key={idx} className="dropdown-option" onClick={() => handleSelect(opt)}>
               {opt.icon && <img src={opt.icon} alt="" className="dropdown-icon" />}
               <span>{opt.label}</span>
+              {opt.balanceInUSD !== undefined && (
+                <span className="dropdown-balance">${opt.balanceInUSD.toFixed(2)}</span>
+              )}
             </div>
           ))}
         </div>
