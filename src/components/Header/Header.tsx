@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useEffect, useState } from 'react';
 import './Header.css';
+import Button from '../Button/Button';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -58,12 +59,20 @@ const Header = () => {
                   )}
                   <span className="header__username"><Link to="/profile">{user.username}</Link></span>
                 </li>
-                <li><button onClick={logout}>Вийти</button></li>
+                <li><Button text="Вийти" onClick={logout} /></li>
               </>
             ) : (
               <>
-                <li className="auth"><Link to="/login">Увійти</Link></li>
-                <li className="auth"><Link to="/signup">Зареєструватись</Link></li>
+                <li className="auth">
+                  <Link to="/login">
+                    <Button text="Увійти"/>
+                  </Link>
+                </li>                
+                <li className="auth">
+                  <Link to="/signup">
+                    <Button text="Зареєструватись"/>
+                  </Link>
+                </li>
               </>
             )}
           </ul>

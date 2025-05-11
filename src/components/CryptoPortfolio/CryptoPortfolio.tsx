@@ -11,19 +11,34 @@ interface CryptoPortfolioProps {
   data: CryptoItem[];
 }
 
+const formatNumber = (num: number, digits = 4) =>
+  num.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: digits,
+  });
+
 const CryptoPortfolio: React.FC<CryptoPortfolioProps> = ({ data }) => {
   return (
     <div className="crypto-portfolio">
-      {data.map((item: CryptoItem, index: number) => (
-        <div className="crypto-item" key={index}>
-          <div className="crypto-icon">
-            <img src={item.icon} alt={item.symbol} />
+      <h2 className="crypto-portfolio__title">Мій Портфель</h2>
+      <div className="crypto-portfolio__list">
+        {data.map((item, index) => (
+          <div className="crypto-item" key={index}>
+            <div className="crypto-item__left">
+              <img src={item.icon} alt={item.symbol} className="crypto-item__icon" />
+              <span className="crypto-item__symbol">{item.symbol}</span>
+            </div>
+            <div className="crypto-item__right">
+              <div className="crypto-item__quantity">
+                {formatNumber(item.quantity)} <span className="unit">{item.symbol}</span>
+              </div>
+              <div className="crypto-item__value">
+                ≈ {formatNumber(item.value, 2)} <span className="unit">USDT</span>
+              </div>
+            </div>
           </div>
-          <div className="crypto-symbol">{item.symbol}</div>
-          <div className="crypto-quantity">{item.quantity}</div>
-          <div className="crypto-value">{item.value} USDT</div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

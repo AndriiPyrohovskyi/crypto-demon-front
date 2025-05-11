@@ -11,7 +11,6 @@ interface FilterOption {
   max?: number;
 }
 
-
 interface FilterListProps {
   title: string;
   options: FilterOption[];
@@ -27,12 +26,7 @@ const FilterList: React.FC<FilterListProps> = ({ title, options, onFilterChange 
     onFilterChange(updated);
   };
 
-  const toggleOption = (
-    label: string,
-    count: number = 0,
-    optMin: number = 0,
-    optMax: number = 100
-  ) => {
+  const toggleOption = (label: string, count = 0, optMin = 0, optMax = 100) => {
     const current = selected[label];
     const option = options.find(opt => opt.label === label);
 
@@ -42,20 +36,10 @@ const FilterList: React.FC<FilterListProps> = ({ title, options, onFilterChange 
       setSelected(updated);
       onFilterChange(updated);
     } else {
-      let defaultValues: string[];
-      if (option && 'value' in option && option.value !== undefined) {
-        defaultValues = [option.value ? option.value.toString() : ""];
-      } else {
-        // existing numeric default logic
-        defaultValues =
-          count > 1
-            ? Array.from({ length: count }, (_, i) =>
-                Math.round(((optMax - optMin) / (count - 1)) * i + optMin).toString()
-              )
-            : count === 1
-            ? [""]
-            : [optMin.toString()];
-      }
+      let defaultValues: string[] = count > 0
+        ? Array.from({ length: count }, (_, i) =>
+            Math.round(((optMax - optMin) / (count - 1)) * i + optMin).toString())
+        : [optMin.toString()];
 
       update(label, defaultValues);
     }
@@ -66,40 +50,36 @@ const FilterList: React.FC<FilterListProps> = ({ title, options, onFilterChange 
     const type = option?.type || "text";
     const min = option?.min ?? 0;
     const max = option?.max ?? 100;
-  
+
     let values = [...(selected[label] || [])];
-  
     if (type === "number") {
       let parsed = parseInt(val);
       if (isNaN(parsed)) parsed = 0;
       parsed = Math.max(min, Math.min(max, parsed));
       values[index] = parsed.toString();
-    } else {
-      values[index] = val;
-    }
-    if (type === "number") {
       for (let i = 1; i < values.length; i++) {
         if (+values[i] < +values[i - 1]) values[i] = values[i - 1];
       }
+    } else {
+      values[index] = val;
     }
-  
+
     update(label, values);
   };
-  
 
   return (
     <div className="filter_list">
       <h3>{title}</h3>
       {options.map(({ label, inputs = 0, slider, type, min, max }, i) => (
-      <div key={i} className="filter_item">
-        <label>
-          <input
-            type="checkbox"
-            checked={!!selected[label]}
-            onChange={() => toggleOption(label, inputs, min ?? 0, max ?? 100)}
-          />
-          {label}
-        </label>
+        <div key={i} className="filter_item">
+          <label>
+            <input
+              type="checkbox"
+              checked={!!selected[label]}
+              onChange={() => toggleOption(label, inputs, min ?? 0, max ?? 100)}
+            />
+            <span>{label}</span>
+          </label>
           {selected[label] && (
             <div className="filter_inputs">
               <div className="input_fields">

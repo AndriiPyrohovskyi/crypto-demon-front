@@ -1,0 +1,45 @@
+.button {
+    font-family: 'Inter', sans-serif;
+    padding: 12px 24px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #ff2e2e;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 12px #ff2e2e80, inset 0 0 6px #ff2e2e33;
+  }
+  
+  .button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      120deg,
+      transparent,
+      rgba(255, 255, 255, 0.15),
+      transparent
+    );
+    transition: all 0.75s ease;
+  }
+  
+  .button:hover::before {
+    left: 100%;
+  }
+  
+  .button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 16px #ff2e2ecc, inset 0 0 8px #ff2e2e66;
+    background-color: #ff4444;
+  }
+  
+  .button:active {
+    transform: scale(0.98);
+    box-shadow: 0 0 8px #ff2e2e99 inset;
+  }
