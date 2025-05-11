@@ -1,7 +1,8 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import { auth } from '../../services/firebase';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { useAuth } from '../../context/AuthContext';
+import './AuthForm.css';
 
 const Signup = () => {
   const { setUser } = useAuth();
@@ -21,11 +22,7 @@ const Signup = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          email,
-          username,
-          firebaseUid,
-        }),
+        body: JSON.stringify({ email, username, firebaseUid }),
       });
 
       if (res.ok) {
@@ -35,7 +32,6 @@ const Signup = () => {
         alert('📩 Ми надіслали листа для підтвердження email');
       } else {
         const errMsg = await res.text();
-        console.error('Помилка реєстрації:', errMsg);
         alert('❌ Помилка реєстрації: ' + errMsg);
       }
     } catch (error: any) {
@@ -44,7 +40,7 @@ const Signup = () => {
   };
 
   return (
-    <div>
+    <div className="auth-form-container">
       <h2>Реєстрація</h2>
       <form onSubmit={(e) => {
         e.preventDefault();
@@ -54,28 +50,19 @@ const Signup = () => {
         const uname = target.username.value;
         emailRegister(email, password, uname);
       }}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input 
-            type="text" 
-            id="username" 
-            name="username" 
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            required 
-          />
-        </div>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input type="email" id="email" name="email" required />
-        </div>
-        <div>
-          <label htmlFor="password">Пароль:</label>
-          <input type="password" id="password" name="password" required />
-        </div>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+        />
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Пароль" required />
         <button type="submit">Зареєструватися</button>
       </form>
-      <p>Вже є акаунт? <a href="/login">Увійти</a></p>
+      <p className="form-footer">Вже є акаунт? <a href="/login">Увійти</a></p>
     </div>
   );
 };

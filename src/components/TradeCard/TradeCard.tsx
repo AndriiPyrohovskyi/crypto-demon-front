@@ -6,34 +6,53 @@ interface TradeCardProps {
   onClose?: (trade: any) => void;
 }
 
-const TradeCard: React.FC<TradeCardProps> = ({ trade, onClose }) => (
-  <div className="trade-card">
-    <div className="trade-card-header">
-      <h2>{trade.Валюта}</h2>
-      <span className={`status ${trade.Статус.toLowerCase()}`}>{trade.Статус}</span>
+const TradeCard: React.FC<TradeCardProps> = ({ trade, onClose }) => {
+  const isLong = trade.Long_Short === 'Long';
+  const statusColor = isLong ? 'long' : 'short';
+
+  return (
+    <div className="trade-card">
+      <div className={`trade-card-top ${statusColor}`}>
+        <div className="id">ID: {trade.ID}</div>
+        <div className="status">Статус: {trade.Статус}</div>
+        <div className="direction">{trade.Long_Short}</div>
+      </div>
+
+      <div className="trade-card-body">
+        <div className="row">
+          <div><strong>Маржа:</strong> {trade.Маржа}</div>
+          <div><strong>Плече:</strong> {trade.Кредитне_плече}</div>
+          <div><strong>Сума ордеру:</strong> {trade.Обєм}</div>
+        </div>
+        <div className="row">
+          <div><strong>Ціна входу:</strong> {trade.Ціна_входу}</div>
+          <div><strong>Актуальна ціна:</strong> {trade.Актуальна_ціна}</div>
+          <div><strong>Ціна ліквідації:</strong> {trade.Орієнтовна_ціна_ліквідації}</div>
+        </div>
+        <div className="row">
+          <div><strong>TP:</strong> {trade.Орієнтований_прибуток}</div>
+          <div><strong>SL:</strong> {trade.Орієнтовані_збитки}</div>
+        </div>
+        <div className="row profit-row">
+          <div><strong>Актуальний прибуток:</strong></div>
+          <div className="profit">{trade.Дельта}</div>
+        </div>
+        <div className="row">
+          <div><strong>Комісія:</strong> <span className="fee">{trade.Комісія}</span></div>
+        </div>
+        <div className="row">
+          <div><strong>Створено:</strong> {trade.Дата_створення}</div>
+          <div><strong>Закрито:</strong> {trade.Дата_закриття}</div>
+        </div>
+      </div>
+
+      {onClose && (
+        <button className="close-btn" onClick={() => onClose(trade)}>
+          Закрити ордер
+        </button>
+      )}
     </div>
-    <div className="trade-card-body">
-      <p><strong>ID:</strong> {trade.ID}</p>
-      <p><strong>Long/Short:</strong> {trade.Long_Short}</p>
-      <p><strong>Дата створення:</strong> {trade.Дата_створення}</p>
-      <p><strong>Маржа:</strong> {trade.Маржа}</p>
-      <p><strong>Кредитне плече:</strong> {trade.Кредитне_плече}</p>
-      <p><strong>Обʼєм:</strong> {trade.Обєм}</p>
-      <p><strong>Ціна входу:</strong> {trade.Ціна_входу}</p>
-      <p><strong>Орієнтовна ціна ліквідації:</strong> {trade.Орієнтовна_ціна_ліквідації}</p>
-      <p><strong>Дельта:</strong> {trade.Дельта}</p>
-      <p><strong>Комісія:</strong> {trade.Комісія}</p>
-      <p><strong>Дата закриття:</strong> {trade.Дата_закриття}</p>
-      <p><strong>Ціна закриття:</strong> {trade.Ціна_закриття}</p>
-      <p><strong>Орієнтований прибуток:</strong> {trade.Орієнтований_прибуток}</p>
-      <p><strong>Орієнтовані збитки:</strong> {trade.Орієнтовані_збитки}</p>
-    </div>
-    {onClose && (
-      <button className="close-btn" onClick={() => onClose(trade)}>
-        Закрити ордер
-      </button>
-    )}
-  </div>
-);
+  );
+};
 
 export default TradeCard;

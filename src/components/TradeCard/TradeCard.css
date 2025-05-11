@@ -1,41 +1,71 @@
 .trade-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1rem;
-    margin: 1rem 0;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .trade-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  
-  .trade-card-header h2 {
-    margin: 0;
-    font-size: 1.2rem;
-  }
-  
-  .status {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    color: #fff;
-    font-size: 0.9rem;
-    text-transform: capitalize;
-  }
-  
-  .status.відкритий {
-    background-color: #28a745;
-  }
-  
-  .status.закритий {
-    background-color: #dc3545;
-  }
-  
-  .trade-card-body p {
-    margin: 0.25rem 0;
-  }
-  
+  background-color: #111;
+  color: #f0f0f0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Rubik', sans-serif;
+  margin: 1rem;
+  min-width: 280px;
+  max-width: 100%;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+}
+
+.trade-card-top {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.trade-card-top.long {
+  background-color: #2e7d32; /* зелений */
+}
+
+.trade-card-top.short {
+  background-color: #b71c1c; /* червоний */
+}
+
+.trade-card-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.profit-row .profit {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.fee {
+  color: #03a9f4;
+}
+
+.close-btn {
+  background: #b71c1c;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-top: 1px solid rgba(255, 0, 0, 0.2);
+  transition: background 0.3s ease;
+}
+
+.close-btn:hover {
+  background: #e53935;
+}

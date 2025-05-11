@@ -192,52 +192,54 @@ const Savings = () => {
   }, []);
 
   return (
-    <div className="savings_container">
-      <div className="sort_mode_container">
-        <h3>Сортування за</h3>
-        <Dropdown
-          options={[
-            { label: 'Символ', value: 'symbol' },
-            { label: 'Кількість', value: 'quantity' },
-            { label: 'Значення', value: 'value' },
-          ]}
-          placeholder="Сортування за"
-          onChange={sortByOption}
-        />
-        <Dropdown
-          options={[
-            { label: "Від А до Я", value: "asc" },
-            { label: "Від Я до А", value: "desc" },
-          ]}
-          placeholder="Порядок сортування"
-          onChange={(value) => setSortOrderHandler(value as 'asc' | 'desc')}
-        />
-        <FilterList
-          title="Фільтри"
-          options={filterOptions}
-          onFilterChange={applyFilters}
-        />
-      </div>
-      <CryptoPortfolio data={cryptoData} />
-      <div className="converrter_container">
-      <Dropdown options={[]}/>
-      <CustomInput 
-      onChange={function (value: string | number): void {
-        throw new Error('Function not implemented.');
-      } } 
-      type={'text'}/>
-      <Dropdown options={[]}/>
-      <CustomInput 
-      onChange={function (value: string | number): void {
-        throw new Error('Function not implemented.');
-      } } 
-      type={'text'}/>
-      <Button text={'Конвертувати'} onClick={function (): void {
-        throw new Error('Function not implemented.');
-      } }
+    <div className="savings__container">
+    <aside className="savings__sidebar">
+      <h3 className="savings__section-title">Сортування</h3>
+      <Dropdown
+        options={[
+          { label: 'Символ', value: 'symbol' },
+          { label: 'Кількість', value: 'quantity' },
+          { label: 'Значення', value: 'value' },
+        ]}
+        placeholder="Сортувати за"
+        onChange={sortByOption}
       />
+      <Dropdown
+        options={[
+          { label: "Від А до Я", value: "asc" },
+          { label: "Від Я до А", value: "desc" },
+        ]}
+        placeholder="Порядок"
+        onChange={(value) => setSortOrderHandler(value as 'asc' | 'desc')}
+      />
+  
+      <FilterList
+        title="Фільтри"
+        options={filterOptions}
+        onFilterChange={applyFilters}
+      />
+    </aside>
+  
+    <main className="savings__portfolio">
+      <h3 className="savings__section-title">Ваш портфель</h3>
+      <CryptoPortfolio data={cryptoData} />
+    </main>
+  
+    <section className="savings__converter">
+      <h3 className="savings__section-title">Конвертер</h3>
+      <div className="converter__row">
+        <Dropdown options={[]} placeholder="З валюти" />
+        <CustomInput onChange={() => {}} type="text" />
       </div>
-    </div>
+      <div className="converter__arrow">⇅</div>
+      <div className="converter__row">
+        <Dropdown options={[]} placeholder="У валюту" />
+        <CustomInput onChange={() => {}} type="text" />
+      </div>
+      <Button text="Конвертувати" onClick={() => {}} />
+    </section>
+  </div>
+  
   );
 };
 
