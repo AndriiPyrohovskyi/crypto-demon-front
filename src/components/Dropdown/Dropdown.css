@@ -47,6 +47,7 @@
     padding: 8px 12px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
     cursor: pointer;
   }
@@ -60,4 +61,10 @@
     height: 18px;
     object-fit: contain;
   }
-  
+
+  .dropdown-balance {
+    margin-left: auto;
+    font-size: 12px;
+    color: #666;
+    text-align: right;
+  }

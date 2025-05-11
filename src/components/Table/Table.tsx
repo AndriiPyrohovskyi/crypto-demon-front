@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import './Table.css';
 
 interface TableColumn {
@@ -5,52 +6,114 @@ interface TableColumn {
   header: string;
 }
 
-type TableProps = {
-  columns: TableColumn[];
-  data: any[];
-  columnWidths?: { [key: string]: string };
+type ActionColumn<T = any> = {
+  header: string;
+  width?: string;
+  render: (row: T) => React.ReactNode;
 };
 
-const Table = ({ columns, data, columnWidths }: TableProps) => {
+type PaginationProps = {
+  defaultRowsPerPage?: number;
+  rowsPerPageOptions?: number[];
+};
+
+type TableProps<T = any> = {
+  columns: TableColumn[];
+  data: T[];
+  columnWidths?: { [key: string]: string };
+  actionColumn?: ActionColumn<T>;
+  pagination?: PaginationProps;
+};
+
+const Table = <T extends any>({
+  columns,
+  data,
+  columnWidths,
+  actionColumn,
+  pagination
+}: TableProps<T>) => {
+  // --- пагінація ---
+  const options = pagination?.rowsPerPageOptions ?? [5, 10, 20, 50];
+  const defaultRPP = pagination?.defaultRowsPerPage ?? options[1];
+  const [rowsPerPage, setRowsPerPage] = useState(defaultRPP);
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(data.length / rowsPerPage));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data, rowsPerPage]);
+
+  const paginatedData = pagination
+    ? data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+    : data;
+
   return (
     <div className="table-container">
       <table className="table">
         <colgroup>
-          {columns.map((col, index) => (
-            <col
-              key={index}
-              style={{ width: columnWidths?.[col.key] || 'auto' }}
-            />
+          {columns.map((col, i) => (
+            <col key={i} style={{ width: columnWidths?.[col.key] || 'auto' }} />
           ))}
+          {actionColumn && <col style={{ width: actionColumn.width || 'auto' }} />}
         </colgroup>
-        <thead className="table-header">
+        <thead>
           <tr>
-            {columns.map((col, index) => (
-              <th key={index} className="table-header-cell">
-                {col.header}
-              </th>
-            ))}
+            {columns.map((col, i) => <th key={i}>{col.header}</th>)}
+            {actionColumn && <th>{actionColumn.header}</th>}
           </tr>
         </thead>
         <tbody>
-          {data.length > 0 ? (
-            data.map((row, rowIndex) => (
-              <tr
-                key={rowIndex}
-                className={rowIndex % 2 === 0 ? 'table-row even' : 'table-row odd'}
-              >
-                {columns.map((col, colIndex) => (
-                  <td key={colIndex}>{row[col.key]}</td>
-                ))}
-              </tr>
-            ))
-          ) : (
+          {paginatedData.length > 0 ? paginatedData.map((row, ri) => (
+            <tr key={ri} className={ri % 2 === 0 ? 'even' : 'odd'}>
+              {columns.map((col, ci) => (
+                <td key={ci}>{(row as any)[col.key]}</td>
+              ))}
+              {actionColumn && <td>{actionColumn.render(row)}</td>}
+            </tr>
+          )) : (
             <tr>
-              <td colSpan={columns.length}>Немає даних</td>
+              <td colSpan={columns.length + (actionColumn ? 1 : 0)}>
+                Немає даних
+              </td>
             </tr>
           )}
         </tbody>
       </table>
+
+      {pagination && (
+        <div className="pagination-panel">
+          <div className="rows-per-page">
+            <label>Записів на сторінці:</label>
+            <select
+              value={rowsPerPage}
+              onChange={e => setRowsPerPage(Number(e.target.value))}
+            >
+              {options.map(n => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+          <div className="page-nav">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => p - 1)}
+            >←</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+              <button
+                key={p}
+                className={p === currentPage ? 'active' : ''}
+                onClick={() => setCurrentPage(p)}
+              >
+                {p}
+              </button>
+            ))}
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(p => p + 1)}
+            >→</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

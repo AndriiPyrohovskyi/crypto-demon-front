@@ -1,0 +1,41 @@
+.crypto-portfolio {
+    background-color: white;
+    color: black;
+    padding: 20px;
+    border-radius: 10px;
+    width: 320px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .crypto-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 0;
+  }
+  .crypto-icon img{
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+  }
+  
+  .crypto-symbol {
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .crypto-position {
+    font-size: 14px;
+    color: #555;
+    margin-top: 2px;
+  }
+  
+  .crypto-quantity {
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  
+  .crypto-value {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 2px;
+  }
+  
