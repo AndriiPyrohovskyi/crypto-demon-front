@@ -4,13 +4,14 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { tableTradesColumns } from '../../constants/tradeConstants';
+import './ChartPanel.css';
+
+const SUM_METRICS = new Set(['Обєм', 'Комісія', 'Маржа']);
+const AVG_METRICS = new Set(['Кредитне_плече', 'Дельта']);
 
 type ChartPanelProps = {
   data: any[];
 };
-
-const SUM_METRICS = new Set(['Обєм', 'Комісія', 'Маржа']);
-const AVG_METRICS = new Set(['Кредитне_плече', 'Дельта']);
 
 const ChartPanel: React.FC<ChartPanelProps> = ({ data }) => {
   const numericCols = tableTradesColumns
@@ -19,7 +20,6 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ data }) => {
 
   const [metric, setMetric] = useState(numericCols[0].key);
 
-  // Підготовка відсортованих даних з __ts
   const sortedData = useMemo(() => {
     return data
       .map(item => ({
@@ -29,11 +29,10 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ data }) => {
       .sort((a, b) => a.__ts - b.__ts);
   }, [data]);
 
-  // Групування за датою (день) та агрегування
   const chartData = useMemo(() => {
     const map: Record<number, { __ts: number; sum: number; count: number }> = {};
     sortedData.forEach(item => {
-      const day = Math.floor(item.__ts / 86400000) * 86400000; // початок дня
+      const day = Math.floor(item.__ts / 86400000) * 86400000;
       if (!map[day]) {
         map[day] = { __ts: day, sum: 0, count: 0 };
       }
@@ -49,8 +48,8 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ data }) => {
   }, [sortedData, metric]);
 
   return (
-    <div style={{ width: '100%', height: 300 }}>
-      <div style={{ marginBottom: 10 }}>
+    <div className="chart-panel">
+      <div className="chart-panel__controls">
         <label>Графік по:</label>
         <select value={metric} onChange={e => setMetric(e.target.value)}>
           {numericCols.map(c =>
@@ -58,7 +57,7 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ data }) => {
           )}
         </select>
       </div>
-      <ResponsiveContainer>
+      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
@@ -67,8 +66,9 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ data }) => {
             scale="time"
             domain={['dataMin', 'dataMax']}
             tickFormatter={ts => new Date(ts).toLocaleDateString()}
+            tick={{ fill: '#ccc' }}
           />
-          <YAxis />
+          <YAxis tick={{ fill: '#ccc' }} />
           <Tooltip
             labelFormatter={ts => new Date(ts).toLocaleDateString()}
           />
@@ -77,7 +77,10 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ data }) => {
             name={numericCols.find(c => c.key === metric)?.label}
             type="monotone"
             dataKey={metric}
-            stroke="#8884d8"
+            stroke="#ff5a5a"
+            strokeWidth={2}
+            dot={{ r: 3, stroke: '#ff5a5a', fill: '#ff5a5a' }}
+            activeDot={{ r: 5 }}
           />
         </LineChart>
       </ResponsiveContainer>

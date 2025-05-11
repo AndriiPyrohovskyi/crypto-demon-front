@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import Dropdown from "../../../../components/Dropdown/Dropdown";
 import FilterList from "../../../../components/FilterList/FilterList";
 import Table from "../../../../components/Table/Table";
-import TradeCard from "../../../../components/TradeCard/TradeCard";
 import { sortingOptions, tableTradesColumns, tableTradesColumnsWidths, generateFilterOptions } from "../../../../constants/tradeConstants";
 import "./TradeHistory.css";
 import ChartPanel from "../../../../components/ChartPanel/ChartPanel";
+import TradeCardContainer from "../../../../components/TradeCardContainer/TradeCardContainer";
 
 type TradeHistoryProps = {
   user: any;
@@ -111,7 +111,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ user }) => {
     setTableData(sortedData);
   };
 
-  const setSortOrder = (value: string): void => {
+  const setSortOrder = (_value: string): void => {
     const sortedData = [...tableData].reverse();
     setTableData(sortedData);
   };
@@ -171,82 +171,79 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ user }) => {
   };
 
   return (
-    <div className="history_container">
-      <div className="side_instruments">
-        <div className="view_mode_selector">
-          <div
-            className={`view_mode_option ${viewMode === 'list' ? 'active' : ''}`}
-            onClick={() => setViewMode('list')}
-          >
-            <span className="icon">☰</span>
-          </div>
-          <div
-            className={`view_mode_option ${viewMode === 'card' ? 'active' : ''}`}
-            onClick={() => setViewMode('card')}
-          >
-            <span className="icon">🖼️</span>
-          </div>
-        </div>
-        <div className="sort_mode_container">
-          <h3>Сортування за</h3>
-          <Dropdown
-            options={sortingOptions}
-            placeholder="Сортування за"
-            onChange={sortByOption}
-          />
-          <Dropdown
-            options={[
-              { label: "Від А до Я", value: "asc" },
-              { label: "Від Я до А", value: "desc" },
-            ]}
-            placeholder="Порядок сортування"
-            onChange={setSortOrder}
-          />
-          <FilterList
-            title="Фільтри"
-            options={filterOptions}
-            onFilterChange={applyFilters}
-          />
-        </div>
+<div className="history-container">
+  <div className="side-instruments">
+    <div className="view-mode-selector">
+      <div
+        className={`view-mode-option ${viewMode === 'list' ? 'active' : ''}`}
+        onClick={() => setViewMode('list')}
+      >
+        <span className="icon">☰</span>
       </div>
-      <div className="trade_content">
-        <h1>Торгівля</h1>
-        <div className="trade_list">
-          {viewMode === 'list' ? (
-            <div className="trades_table">
-              <Table
-                columns={tableTradesColumns}
-                data={tableData}
-                columnWidths={tableTradesColumnsWidths}
-                actionColumn={{
-                  header: 'Дія',
-                  width: '100px',
-                  render: (trade) =>
-                    trade.Статус === 'open'
-                      ? <button onClick={() => handleCloseOrder(trade)}>Закрити ордер</button>
-                      : null
-                }}
-                pagination={{
-                  defaultRowsPerPage: 10,
-                  rowsPerPageOptions: [5, 10, 20]
-                }}
-              />
-            </div>
-          ) : (
-            <div className="trades_cards_container">
-              {tableData.map(trade => (
-                <TradeCard
-                  key={trade.ID}
-                  trade={trade}
-                  onClose={handleCloseOrder}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-        <ChartPanel data={tableData} />
+      <div
+        className={`view-mode-option ${viewMode === 'card' ? 'active' : ''}`}
+        onClick={() => setViewMode('card')}
+      >
+        <span className="icon">🖼️</span>
       </div>
     </div>
+    <div className="sort-mode-container">
+      <h3>Сортування за</h3>
+      <Dropdown
+        options={sortingOptions}
+        placeholder="Сортування за"
+        onChange={sortByOption}
+      />
+      <Dropdown
+        options={[
+          { label: "Від А до Я", value: "asc" },
+          { label: "Від Я до А", value: "desc" },
+        ]}
+        placeholder="Порядок сортування"
+        onChange={setSortOrder}
+      />
+      <FilterList
+        title="Фільтри"
+        options={filterOptions}
+        onFilterChange={applyFilters}
+      />
+    </div>
+  </div>
+  <div className="trade-content">
+    <h1>Торгівля</h1>
+    <div className="trade-list">
+      {viewMode === 'list' ? (
+        <div className="trades-table">
+          <Table
+            columns={tableTradesColumns}
+            data={tableData}
+            columnWidths={tableTradesColumnsWidths}
+            actionColumn={{
+              header: 'Дія',
+              width: '100px',
+              render: (trade) =>
+                trade.Статус === 'open'
+                  ? <button onClick={() => handleCloseOrder(trade)}>Закрити ордер</button>
+                  : null
+            }}
+            pagination={{
+              defaultRowsPerPage: 10,
+              rowsPerPageOptions: [5, 10, 20]
+            }}
+          />
+        </div>
+      ) : (
+        <div className="trades-cards-container">
+          <TradeCardContainer
+            trades={tableData}
+            onClose={handleCloseOrder}
+          />
+        </div>
+      )}
+    </div>
+    <ChartPanel data={tableData} />
+  </div>
+</div>
   );
 };
 

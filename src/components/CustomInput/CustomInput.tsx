@@ -10,17 +10,18 @@ export interface CustomInputProps {
   max?: number;
   value?: string;
   step?: number;
+  placeholder?: string;
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
-  symbol, onChange, onBlur, type = 'text', min, max, value, step
+  symbol, onChange, onBlur, type = 'text', min, max, value, step, placeholder
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(type === 'number' ? e.target.value : e.target.value);
   };
 
   return (
-    <div className="custom_input">
+    <div className="custom-input">
       <input
         type={type}
         value={value}
@@ -29,8 +30,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
         min={type === 'number' ? min : undefined}
         max={type === 'number' ? max : undefined}
         step={type === 'number' ? step : undefined}
+        placeholder={placeholder}
       />
-      {symbol && <span className="input_symbol">{symbol}</span>}
+      {symbol && <span className="input-symbol">{symbol}</span>}
     </div>
   );
 };

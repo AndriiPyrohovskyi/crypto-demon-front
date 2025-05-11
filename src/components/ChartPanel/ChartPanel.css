@@ -1,0 +1,56 @@
+.chart-panel {
+    background-color: #0b0b0f;
+    border: 1px solid #1e1e28;
+    border-radius: 16px;
+    padding: 20px;
+    color: #f0f0f0;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.05);
+  }
+  
+  .chart-panel__controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+  
+  .chart-panel__controls label {
+    font-weight: 500;
+    color: #ff5a5a;
+  }
+  
+  .chart-panel__controls select {
+    background-color: #1e1e28;
+    color: #fff;
+    border: 1px solid #ff5a5a;
+    padding: 6px 10px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  
+  .chart-panel__controls select:hover,
+  .chart-panel__controls select:focus {
+    border-color: #ff2e2e;
+    background-color: #2a2a38;
+  }
+  
+  .recharts-cartesian-grid line {
+    stroke: #2e2e3e;
+  }
+  
+  .recharts-tooltip-wrapper {
+    font-size: 14px;
+    background-color: #1e1e28;
+    border-radius: 8px;
+  }
+  
+  .recharts-default-tooltip {
+    background-color: #1e1e28 !important;
+    border: 1px solid #ff5a5a !important;
+    color: #fff !important;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  

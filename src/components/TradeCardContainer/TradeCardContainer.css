@@ -1,0 +1,24 @@
+.trade-card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: #aa0000 #222;
+  }
+  
+  .trade-card-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .trade-card-container::-webkit-scrollbar-thumb {
+    background: #aa0000;
+    border-radius: 4px;
+  }
+  
+  .trade-card-container::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+  

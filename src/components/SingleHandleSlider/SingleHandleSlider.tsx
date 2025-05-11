@@ -27,7 +27,7 @@ const SingleHandleSlider: React.FC<SingleHandleSliderProps> = ({ min, max, value
             width: "100%",
             background: getTrackBackground({
               values: values,
-              colors: ["#548BF4", "#ccc"],
+              colors: ["#990000", "#ccc"],
               min,
               max,
             }),
@@ -46,7 +46,7 @@ const SingleHandleSlider: React.FC<SingleHandleSliderProps> = ({ min, max, value
             height: "16px",
             width: "16px",
             borderRadius: "50%",
-            backgroundColor: "#548BF4",
+            backgroundColor: "#FF2E2E",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",

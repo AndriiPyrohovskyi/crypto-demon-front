@@ -38,16 +38,20 @@ const Dropdown: React.FC<DropdownProps> = ({ options, placeholder, onChange }) =
   return (
     <div className="dropdown-container" ref={dropdownRef}>
       <div className="dropdown-selected" onClick={() => setOpen(!open)}>
-        {selected?.icon && <img src={selected.icon} alt="" className="dropdown-icon" />}
+        {selected?.icon && (
+          <img src={selected.icon} alt={selected.label} className="dropdown-icon" />
+        )}
         <span>{selected?.label || placeholder || "Оберіть"}</span>
-        <span className="dropdown-arrow">▼</span>
+        <span className={`dropdown-arrow ${open ? "open" : ""}`}>▼</span>
       </div>
       {open && (
         <div className="dropdown-options">
           {options.map((opt, idx) => (
-            <div key={idx} className="dropdown-option" onClick={() => handleSelect(opt)}>
-              {opt.icon && <img src={opt.icon} alt="" className="dropdown-icon" />}
-              <span>{opt.label}</span>
+            <div key={idx} className="dropdown-option" onClick={() => handleSelect(opt)} title={opt.label}>
+              <div className="dropdown-left">
+                {opt.icon && <img src={opt.icon} alt={opt.label} className="dropdown-icon" />}
+                <span>{opt.label}</span>
+              </div>
               {opt.balanceInUSD !== undefined && (
                 <span className="dropdown-balance">${opt.balanceInUSD.toFixed(2)}</span>
               )}

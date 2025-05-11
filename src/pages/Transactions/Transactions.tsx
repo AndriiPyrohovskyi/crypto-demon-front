@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Dropdown from '../../components/Dropdown/Dropdown';
 import CustomInput from '../../components/CustomInput/CustomInput';
 import Table from '../../components/Table/Table';
@@ -440,151 +440,141 @@ const Transactions = () => {
   };
 
   return (
-    <div className="transactions_container">
-      <div className="create_transaction_container">
-        <div className="transaction_props">
-          <h3>Валюта</h3>
+<div className="transactions__container">
+  <section className="transactions__top">
+    {/* LEFT: Введення даних */}
+    <div className="transactions__panel transaction__props">
+      <h3>Обрати валюту</h3>
+      <Dropdown
+        options={currencyArray.map((c) => ({
+          label: c.label,
+          value: c.value,
+          icon: c.icon,
+          balanceInUSD: c.balance * c.price,
+        }))}
+        placeholder="Виберіть валюту"
+        onChange={handleCurrencyChange}
+      />
+      <p>Баланс: {selectedCurrency?.balance.toFixed(2)} {selectedCurrency?.label}</p>
+      <p>Баланс в USD: {(selectedCurrency?.balance * currentPrice).toFixed(2)} $</p>
+      <h3>Обʼєм (USD)</h3>
+      <CustomInput
+        type="number"
+        symbol="USDT"
+        value={valueDollar.toString()}
+        onChange={(val) => handleUSDChange(Number(val))}
+      />
+      {selectedCurrency?.value !== 'USDT' && (
+        <>
+          <h3>Обʼєм ({selectedCurrency?.label})</h3>
+          <CustomInput
+            type="number"
+            symbol={selectedCurrency?.label}
+            value={valueCrypto.toString()}
+            onChange={(val) => handleCryptoChange(Number(val))}
+          />
+        </>
+      )}
+      <SingleHandleSlider min={0} max={100} value={sliderValue} onChange={handleSliderChange} />
+      {warning && <div className="warning">{warning}</div>}
+      <p>Ціна зараз: {currentPrice.toFixed(2)} $</p>
+    </div>
+
+    {/* CENTER: Отримувач + кнопка */}
+    <div className="transactions__panel transaction__info">
+      <h3>Кому надіслати</h3>
+      <Dropdown
+        options={[
+          { label: 'За ID', value: 'ByID' },
+          { label: "За імʼям", value: 'ByUsername' },
+        ]}
+        placeholder="Оберіть спосіб"
+        onChange={setRecipientMethod}
+      />
+      <CustomInput
+        type="text"
+        value={recipientInput}
+        onChange={(val) => setRecipientInput(String(val))}
+        onBlur={validateRecipient}
+      />
+      {recipientError && <div className="error">{recipientError}</div>}
+      <label className="checkbox">
+        <input
+          type="checkbox"
+          checked={inviteSwap}
+          onChange={(e) => setInviteSwap(e.target.checked)}
+        /> запросити обмін
+      </label>
+      {inviteSwap && (
+        <>
+          <h3>Валюта для обміну</h3>
           <Dropdown
-            options={currencyArray.map((c) => ({
+            options={allCurrencies.map((c) => ({
               label: c.label,
               value: c.value,
               icon: c.icon,
-              balanceInUSD: c.balance * c.price,
             }))}
-            placeholder="Виберіть валюту"
-            onChange={handleCurrencyChange}
+            placeholder="Обрати валюту"
+            onChange={setSwapCurrency}
           />
-          <h3>Баланс: {selectedCurrency?.balance.toFixed(2)} {selectedCurrency?.label}</h3>
-          <h3>Баланс в USD: {(selectedCurrency?.balance * currentPrice).toFixed(2)} $</h3>
-          <h3>Об'єм (USD)</h3>
-          <CustomInput
-            type="number"
-            symbol="USDT"
-            value={valueDollar.toString()}
-            onChange={(val) => handleUSDChange(Number(val))}
-          />
-          {selectedCurrency?.value !== 'USDT' && (
-            <>
-              <h3>Об'єм ({selectedCurrency?.label})</h3>
-              <CustomInput
-                type="number"
-                symbol={selectedCurrency?.label}
-                value={valueCrypto.toString()}
-                onChange={(val) => handleCryptoChange(Number(val))}
-              />
-            </>
-          )}
-          <SingleHandleSlider
-            min={0}
-            max={100}
-            value={sliderValue}
-            onChange={handleSliderChange}
-          />
-          {warning && <div className="warning">{warning}</div>}
-          <h3>Ціна зараз: {currentPrice.toFixed(2)} $</h3>
-        </div>
-        <div className="transaction_info">
-          <h3>Спосіб переказу</h3>
-          <Dropdown
-            options={[
-              { label: 'За ID', value: 'ByID' },
-              { label: "За ім'ям", value: 'ByUsername' },
-            ]}
-            placeholder="Оберіть спосіб переказу"
-            onChange={setRecipientMethod}
-          />
-          <h3>{recipientMethod === 'ByID' ? 'ID користувача' : 'Username'}</h3>
-          <CustomInput
-            type="text"
-            value={recipientInput}
-            onChange={(val) => setRecipientInput(String(val))}
-            onBlur={validateRecipient}
-          />
-          {recipientError && <div className="error">{recipientError}</div>}
-          <label>
-            <input
-              type="checkbox"
-              checked={inviteSwap}
-              onChange={(e) => setInviteSwap(e.target.checked)}
-            />{' '}
-            запросити обмін
-          </label>
-          {inviteSwap && (
-            <>
-              <h3>Валюта для обміну</h3>
-              <Dropdown
-                options={allCurrencies.map((c) => ({
-                  label: c.label,
-                  value: c.value,
-                  icon: c.icon,
-                }))}
-                placeholder="Виберіть валюту для обміну"
-                onChange={(value) => setSwapCurrency(value)}
-              />
-            </>
-          )}
-          <Button
-            text="Відправити"
-            onClick={handleSendTransaction}
-          />
-        </div>
-        <div className="transaction_recent_users">
-          <div className="transaction_tables">
-          <Table
-            columns={userColumns}
-            data={users}
-            pagination={{ defaultRowsPerPage: 5, rowsPerPageOptions: [5, 10] }}
-          />
-          <Table
-            columns={exchangeColumns}
-            data={exchanges}
-            columnWidths={exchangeColumnsWidth}
-            actionColumn={{
-              header: 'Дії',
-              render: (row) => (
-                <div>
-                  <Button text="Прийняти" onClick={() => handleAcceptExchange(row.id)} />
-                  <Button text="Відхилити" onClick={() => handleRejectExchange(row.id)} />
-                </div>
-              ),
-            }}
-            pagination={{ defaultRowsPerPage: 5, rowsPerPageOptions: [5, 10] }}
-          />
-          </div>
-        </div>
-      </div>
-      <div className="transaction_history_container">
-        <div className="sort_mode_container">
-          <h3>Сортування за</h3>
-          <Dropdown
-            options={transactionSortingOptions}
-            placeholder="Сортування за"
-            onChange={sortByOption}
-          />
-          <Dropdown
-            options={[
-              { label: "Від А до Я", value: "asc" },
-              { label: "Від Я до А", value: "desc" },
-            ]}
-            placeholder="Порядок сортування"
-            onChange={(value) => setSortOrderHandler(value as 'asc' | 'desc')}
-          />
-          <FilterList
-            title="Фільтри"
-            options={filterOptions}
-            onFilterChange={applyFilters}
-          />
-        </div>
-        <div className="transactions_table_wrapper">
-          <h3>Історія транзакцій</h3>
-          <Table
-            columns={txColumns}
-            data={txs}
-            pagination={{ defaultRowsPerPage: 10, rowsPerPageOptions: [10, 20, 50] }}
-          />
-        </div>
-      </div>
+        </>
+      )}
+      <Button text="Відправити" onClick={handleSendTransaction} />
     </div>
+
+    {/* RIGHT: Активні користувачі та обміни */}
+    <div className="transactions__panel transaction__tables">
+      <h3>Останні користувачі</h3>
+      <Table
+        columns={userColumns}
+        data={users}
+        pagination={{ defaultRowsPerPage: 5, rowsPerPageOptions: [5, 10] }}
+      />
+      <h3>Запити на обмін</h3>
+      <Table
+        columns={exchangeColumns}
+        data={exchanges}
+        columnWidths={exchangeColumnsWidth}
+        actionColumn={{
+          header: 'Дії',
+          render: (row) => (
+            <div className="exchange-actions">
+              <Button text="Прийняти" onClick={() => handleAcceptExchange(row.id)} />
+              <Button text="Відхилити" onClick={() => handleRejectExchange(row.id)} />
+            </div>
+          ),
+        }}
+        pagination={{ defaultRowsPerPage: 5, rowsPerPageOptions: [5, 10] }}
+      />
+    </div>
+  </section>
+
+  {/* ІСТОРІЯ */}
+  <section className="transactions__bottom">
+    <div className="transactions__panel transaction__sort">
+      <h3>Сортування</h3>
+      <Dropdown options={transactionSortingOptions} placeholder="Сортування за" onChange={sortByOption} />
+      <Dropdown
+        options={[
+          { label: "Від А до Я", value: "asc" },
+          { label: "Від Я до А", value: "desc" },
+        ]}
+        placeholder="Порядок"
+        onChange={(value) => setSortOrderHandler(value as 'asc' | 'desc')}
+      />
+      <FilterList title="Фільтри" options={filterOptions} onFilterChange={applyFilters} />
+    </div>
+    <div className="transactions__panel transaction__history">
+      <h3>Історія транзакцій</h3>
+      <Table
+        columns={txColumns}
+        data={txs}
+        pagination={{ defaultRowsPerPage: 10, rowsPerPageOptions: [10, 20, 50] }}
+      />
+    </div>
+  </section>
+</div>
+
   );
 };
 
