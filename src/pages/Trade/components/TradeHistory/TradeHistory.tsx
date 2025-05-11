@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import Dropdown from "../../../../components/Dropdown/Dropdown";
 import FilterList from "../../../../components/FilterList/FilterList";
 import Table from "../../../../components/Table/Table";
-import TradeCard from "../../../../components/TradeCard/TradeCard";
 import { sortingOptions, tableTradesColumns, tableTradesColumnsWidths, generateFilterOptions } from "../../../../constants/tradeConstants";
 import "./TradeHistory.css";
 import ChartPanel from "../../../../components/ChartPanel/ChartPanel";
@@ -112,7 +111,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ user }) => {
     setTableData(sortedData);
   };
 
-  const setSortOrder = (value: string): void => {
+  const setSortOrder = (_value: string): void => {
     const sortedData = [...tableData].reverse();
     setTableData(sortedData);
   };

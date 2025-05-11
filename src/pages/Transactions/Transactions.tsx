@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Dropdown from '../../components/Dropdown/Dropdown';
 import CustomInput from '../../components/CustomInput/CustomInput';
 import Table from '../../components/Table/Table';

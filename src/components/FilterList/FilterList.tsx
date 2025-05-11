@@ -28,7 +28,7 @@ const FilterList: React.FC<FilterListProps> = ({ title, options, onFilterChange 
 
   const toggleOption = (label: string, count = 0, optMin = 0, optMax = 100) => {
     const current = selected[label];
-    const option = options.find(opt => opt.label === label);
+    // const option = options.find(opt => opt.label === label);
 
     if (current) {
       const updated = { ...selected };

@@ -9,14 +9,14 @@ const ProfileBalance = () => {
         <p>Баланс: 0.00 $</p>
         <CustomInput
             type="text" 
-            onChange={function (value: string | number): void {
+            onChange={function (_value: string | number): void {
               throw new Error("Function not implemented.");
             } }        
             />
         <Button text="Поповнити баланс" />
         <CustomInput
             type="text" 
-            onChange={function (value: string | number): void {
+            onChange={function (_value: string | number): void {
               throw new Error("Function not implemented.");
             } }        
             />
