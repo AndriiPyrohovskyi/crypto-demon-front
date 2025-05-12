@@ -129,3 +129,11 @@ td[colspan] {
 .table-container::-webkit-scrollbar-track {
   background: transparent;
 }
+
+.green {
+  color: #4caf50; /* Зелений */
+}
+
+.red {
+  color: #f44336; /* Червоний */
+}

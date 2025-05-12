@@ -16,6 +16,12 @@ const Savings = () => {
   const [filterOptions, setFilterOptions] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState<string>('symbol');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [currencyArray, setCurrencyArray] = useState<any[]>([]);
+  const [allCurrencies, setAllCurrencies] = useState<any[]>([]);
+  const [selectedFromCurrency, setSelectedFromCurrency] = useState<any>(null);
+  const [selectedToCurrency, setSelectedToCurrency] = useState<any>(null);
+  const [fromAmount, setFromAmount] = useState<number>(0);
+  const [toAmount, setToAmount] = useState<number>(0);
 
   const fetchTransactions = async () => {
     try {
@@ -191,6 +197,177 @@ const Savings = () => {
     fetchTransactions();
   }, []);
 
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      try {
+        const token = localStorage.getItem('token');
+
+        // Отримуємо валюти користувача
+        const userCurrencyRes = await fetch(
+          'https://crypto-demon-back.onrender.com/user-currency',
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!userCurrencyRes.ok) throw new Error(userCurrencyRes.statusText);
+        const userCurrencies: Array<{
+          currency: { symbol: string; logo_url: string };
+          balance: number;
+        }> = await userCurrencyRes.json();
+
+        const enrichedUserCurrencies = userCurrencies.map((c) => ({
+          label: `${c.currency.symbol} (Доступно: ${c.balance})`,
+          value: c.currency.symbol,
+          icon: c.currency.logo_url,
+          balance: c.balance,
+        }));
+
+        setCurrencyArray(enrichedUserCurrencies);
+
+        // Отримуємо всі доступні валюти
+        const allCurrencyRes = await fetch(
+          'https://crypto-demon-back.onrender.com/currency',
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!allCurrencyRes.ok) throw new Error(allCurrencyRes.statusText);
+        const allCurrencies: Array<{ symbol: string; logo_url: string }> =
+          await allCurrencyRes.json();
+
+        const enrichedAllCurrencies = allCurrencies.map((c) => ({
+          label: c.symbol,
+          value: c.symbol,
+          icon: c.logo_url,
+        }));
+
+        setAllCurrencies(enrichedAllCurrencies);
+      } catch (err) {
+        console.error('Не вдалося завантажити валюти:', err);
+      }
+    };
+
+    fetchCurrencies();
+  }, []);
+
+  const handleConvert = async () => {
+    if (!selectedFromCurrency || !selectedToCurrency || fromAmount <= 0) {
+      alert('Будь ласка, заповніть всі поля');
+      return;
+    }
+
+    if (fromAmount > selectedFromCurrency.balance) {
+      alert('Сума перевищує доступну кількість валюти');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const body = {
+        fromSymbol: selectedFromCurrency.value,
+        toSymbol: selectedToCurrency.value,
+        fromAmount,
+        toAmount,
+      };
+      const res = await fetch(
+        'https://crypto-demon-back.onrender.com/user-currency/exchange',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(body),
+        }
+      );
+      if (!res.ok) throw new Error('Не вдалося виконати обмін');
+      alert('Обмін успішно виконано');
+    } catch (err) {
+      console.error('Помилка обміну:', err);
+      alert('Не вдалося виконати обмін');
+    }
+  };
+
+  const handleFromAmountChange = (val: number) => {
+    if (selectedFromCurrency && val > selectedFromCurrency.balance) {
+      val = selectedFromCurrency.balance; // Обмежуємо значення доступною кількістю
+    }
+  
+    setFromAmount(val);
+  
+    if (selectedFromCurrency && selectedToCurrency) {
+      fetchExchangeRate(selectedFromCurrency.value, selectedToCurrency.value)
+        .then((rate) => {
+          setToAmount(val * rate);
+        })
+        .catch((err) => {
+          console.error('Помилка отримання курсу обміну:', err);
+          setToAmount(0);
+        });
+    }
+  };
+  
+
+  const handleToAmountChange = (val: number) => {
+    setToAmount(val);
+
+    if (selectedFromCurrency && selectedToCurrency) {
+      fetchExchangeRate(selectedFromCurrency.value, selectedToCurrency.value)
+        .then((rate) => {
+          const calculatedFromAmount = val / rate;
+          if (calculatedFromAmount > selectedFromCurrency.balance) {
+            setFromAmount(selectedFromCurrency.balance); // Обмежуємо значення доступною кількістю
+            setToAmount(selectedFromCurrency.balance * rate); // Оновлюємо toAmount
+          } else {
+            setFromAmount(calculatedFromAmount);
+          }
+        })
+        .catch((err) => {
+          console.error('Помилка отримання курсу обміну:', err);
+          setFromAmount(0);
+        });
+    }
+  };
+
+  const fetchExchangeRate = async (fromSymbol: string, toSymbol: string): Promise<number> => {
+    if (fromSymbol === toSymbol) return 1; // Якщо валюти однакові, курс = 1
+  
+    try {
+      // Завжди будуємо пару так, щоб USDT був другим
+      const fetchRate = async (base: string, quote: string): Promise<number> => {
+        const symbol = `${base}${quote}`;
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+        if (response.ok) {
+          const data = await response.json();
+          return parseFloat(data.price);
+        }
+        throw new Error(`Не вдалося отримати курс для пари ${symbol}`);
+      };
+  
+      // Якщо одна з валют — USDT, отримуємо курс напряму
+      if (fromSymbol === 'USDT') {
+        return fetchRate(toSymbol, 'USDT'); // Напряму до USDT
+      }
+      if (toSymbol === 'USDT') {
+        return fetchRate(fromSymbol, 'USDT'); // Напряму від USDT
+      }
+  
+      // Завжди конвертуємо через USDT
+      const toUSDT = await fetchRate(fromSymbol, 'USDT'); // Курс з fromSymbol в USDT
+      const fromUSDT = await fetchRate(toSymbol, 'USDT'); // Курс з USDT в toSymbol
+      return toUSDT / fromUSDT; // Повертаємо комбінований курс
+    } catch (err) {
+      console.error(`Не вдалося отримати курс обміну для ${fromSymbol} -> ${toSymbol}:`, err);
+      throw err;
+    }
+  };
+
   return (
     <div className="savings__container">
     <aside className="savings__sidebar">
@@ -228,15 +405,37 @@ const Savings = () => {
     <section className="savings__converter">
       <h3 className="savings__section-title">Конвертер</h3>
       <div className="converter__row">
-        <Dropdown options={[]} placeholder="З валюти" />
-        <CustomInput onChange={() => {}} type="text" />
+        <Dropdown
+          options={currencyArray}
+          placeholder="З валюти"
+          onChange={(value) =>
+            setSelectedFromCurrency(
+              currencyArray.find((c) => c.value === value)
+            )
+          }
+        />
+        <CustomInput
+          type="number"
+          value={fromAmount.toString()}
+          onChange={(val) => handleFromAmountChange(Number(val))}
+        />
       </div>
       <div className="converter__arrow">⇅</div>
       <div className="converter__row">
-        <Dropdown options={[]} placeholder="У валюту" />
-        <CustomInput onChange={() => {}} type="text" />
+        <Dropdown
+          options={allCurrencies}
+          placeholder="У валюту"
+          onChange={(value) =>
+            setSelectedToCurrency(allCurrencies.find((c) => c.value === value))
+          }
+        />
+        <CustomInput
+          type="number"
+          value={toAmount.toString()}
+          onChange={(val) => handleToAmountChange(Number(val))}
+        />
       </div>
-      <Button text="Конвертувати" onClick={() => {}} />
+      <Button text="Конвертувати" onClick={handleConvert} />
     </section>
   </div>
   

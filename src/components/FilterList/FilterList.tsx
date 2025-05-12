@@ -26,9 +26,8 @@ const FilterList: React.FC<FilterListProps> = ({ title, options, onFilterChange 
     onFilterChange(updated);
   };
 
-  const toggleOption = (label: string, count = 0, optMin = 0, optMax = 100) => {
+  const toggleOption = (label: string, _count = 0, optMin = 0, optMax = 100) => {
     const current = selected[label];
-    // const option = options.find(opt => opt.label === label);
 
     if (current) {
       const updated = { ...selected };
@@ -36,11 +35,7 @@ const FilterList: React.FC<FilterListProps> = ({ title, options, onFilterChange 
       setSelected(updated);
       onFilterChange(updated);
     } else {
-      let defaultValues: string[] = count > 0
-        ? Array.from({ length: count }, (_, i) =>
-            Math.round(((optMax - optMin) / (count - 1)) * i + optMin).toString())
-        : [optMin.toString()];
-
+      const defaultValues = [optMin.toString(), optMax.toString()];
       update(label, defaultValues);
     }
   };
@@ -98,7 +93,9 @@ const FilterList: React.FC<FilterListProps> = ({ title, options, onFilterChange 
                 <MultiHandleSlider
                   min={min || 0}
                   max={max || 100}
-                  values={selected[label].map(Number)}
+                  values={
+                    selected[label]?.map((v) => Number(v)).filter((v) => !isNaN(v)).sort((a, b) => a - b) || [min || 0, max || 100]
+                  }
                   onChange={(vals) => update(label, vals.map(String))}
                 />
               )}

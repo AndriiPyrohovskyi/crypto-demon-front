@@ -51,6 +51,19 @@
   color: #4caf50;
 }
 
+.profit {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.green {
+  color: #4caf50; /* Зелений */
+}
+
+.red {
+  color: #f44336; /* Червоний */
+}
+
 .fee {
   color: #03a9f4;
 }

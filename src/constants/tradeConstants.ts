@@ -32,9 +32,9 @@ export const tableTradesColumns = [
   { key: 'Дата_закриття', header: 'Дата закриття' },
   { key: 'Ціна_закриття', header: 'Ціна закриття' },
   { key: 'Орієнтований_прибуток', header: 'Орієнтований прибуток' },
-  { key: 'Ціна_фіксації_прибутку', header: 'Орієнтований прибуток' },
+  { key: 'Ціна_фіксації_прибутку', header: 'Ціна фіксації прибутку' },
   { key: 'Орієнтовані_збитки', header: 'Орієнтовані збитки' },
-  { key: 'Ціна_фіксації_збитків', header: 'Орієнтовані збитки' },
+  { key: 'Ціна_фіксації_збитків', header: 'Ціна фіксації збитків' },
 ];
 
 export const tableTradesColumnsWidths = {
@@ -42,20 +42,20 @@ export const tableTradesColumnsWidths = {
   Валюта: '90px',
   Long_Short: '60px',
   Статус: '80px',
-  Дата_створення: '100px',
-  Маржа: '70px',
+  Дата_створення: '110px',
+  Маржа: '100px',
   Кредитне_плече: '90px',
-  Обєм: '70px',
-  Ціна_входу: '60px',
+  Обєм: '90px',
+  Ціна_входу: '100px',
   Теперішня_ціна: '100px',
-  Орієнтована_ціна_ліквідації: '100px',
-  Дельта: '70px',
-  Комісія: '75px',
-  Дата_закриття: '100px',
-  Ціна_закриття: '85px',
-  Орієнтований_прибуток: '120px',
+  Орієнтована_ціна_ліквідації: '150px',
+  Дельта: '100px',
+  Комісія: '90px',
+  Дата_закриття: '110px',
+  Ціна_закриття: '100px',
+  Орієнтований_прибуток: '140px',
   Ціна_фіксації_прибутку: '120px',
-  Орієнтовані_збитки: '120px',
+  Орієнтовані_збитки: '140px',
   Ціна_фіксації_збитків: '120px'
 };
 
@@ -63,19 +63,7 @@ export const generateFilterOptions = (trades: any[]) => {
   const numericFields = [
     { label: "ID", key: "ID" },
     { label: "Кредитне плече", key: "Кредитне_плече" },
-    { label: "Маржа", key: "Маржа" },
-    { label: "Комісія", key: "Комісія" },
     { label: "Дельта", key: "Дельта" },
-    { label: "Об'єм ордеру", key: "Обєм" },
-    { label: "Орієнтований прибуток", key: "Орієнтований_прибуток" },
-    { label: "Орієнтовані збитки", key: "Орієнтовані_збитки" },
-  ];
-
-  const logicalFields = [
-    { label: "Лонг", key: "Long_Short", value: "Long" },
-    { label: "Шорт", key: "Long_Short", value: "Short" },
-    { label: "Відкритий ордер", key: "Статус", value: "open" },
-    { label: "Закритий ордер", key: "Статус", value: "closed" },
   ];
 
   const textFields = [
@@ -89,12 +77,6 @@ export const generateFilterOptions = (trades: any[]) => {
     return { label: field.label, key: field.key, inputs: 2, slider: true, min, max };
   });
 
-  const logicalOptions = logicalFields.map((field) => ({
-    label: field.label,
-    key: field.key,
-    value: field.value,
-  }));
-
   const textOptions = textFields.map((field) => ({
     label: field.label,
     key: field.key,
@@ -102,5 +84,5 @@ export const generateFilterOptions = (trades: any[]) => {
     type: field.type,
   }));
 
-  return [...numericOptions, ...logicalOptions, ...textOptions];
+  return [...numericOptions, ...textOptions];
 };

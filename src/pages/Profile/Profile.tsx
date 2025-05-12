@@ -17,10 +17,6 @@ const Profile = () => {
         return (
           <ProfileContent/>
         );
-      case 'statistics':
-        return (
-          <ProfileStats/>
-        );
       case 'balance':
         return (
           <ProfileBalance/>
@@ -39,9 +35,7 @@ const Profile = () => {
       <Sidebar
         items={[
           { label: 'Профіль', value: 'profile' },
-          { label: 'Статистика', value: 'statistics' },
           { label: 'Операції над балансом', value: 'balance' },
-          { label: 'Видалити мій акаунт', value: 'delete' },
           ...(user?.role === 'admin'
             ? [{ label: 'Адмін панель', value: 'admin' }]
             : []),

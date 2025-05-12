@@ -17,7 +17,11 @@ type PaginationProps = {
   rowsPerPageOptions?: number[];
 };
 
-type TableProps<T = any> = {
+type TableRow = {
+  priceColor?: string;
+};
+
+type TableProps<T extends TableRow = TableRow> = {
   columns: TableColumn[];
   data: T[];
   columnWidths?: { [key: string]: string };
@@ -25,18 +29,18 @@ type TableProps<T = any> = {
   pagination?: PaginationProps;
 };
 
-const Table = <T extends any>({
+const Table = <T extends TableRow>({
   columns,
   data,
   columnWidths,
   actionColumn,
   pagination
 }: TableProps<T>) => {
-  // --- пагінація ---
   const options = pagination?.rowsPerPageOptions ?? [5, 10, 20, 50];
   const defaultRPP = pagination?.defaultRowsPerPage ?? options[1];
   const [rowsPerPage, setRowsPerPage] = useState(defaultRPP);
   const [currentPage, setCurrentPage] = useState(1);
+
   const totalPages = Math.max(1, Math.ceil(data.length / rowsPerPage));
 
   useEffect(() => {
@@ -65,9 +69,26 @@ const Table = <T extends any>({
         <tbody>
           {paginatedData.length > 0 ? paginatedData.map((row, ri) => (
             <tr key={ri} className={ri % 2 === 0 ? 'even' : 'odd'}>
-              {columns.map((col, ci) => (
-                <td key={ci}>{(row as any)[col.key]}</td>
-              ))}
+              {columns.map((col, ci) => {
+                const value = (row as any)[col.key];
+                let cellStyle = {};
+
+                // Динамічне забарвлення для Дельти
+                if (col.key === 'Дельта') {
+                  cellStyle = { color: value > 0 ? 'green' : 'red' };
+                }
+
+                // Динамічне забарвлення для теперішньої ціни
+                if (col.key === 'Теперішня_ціна') {
+                  cellStyle = { color: row.priceColor || 'inherit' };
+                }
+
+                return (
+                  <td key={ci} style={cellStyle}>
+                    {value}
+                  </td>
+                );
+              })}
               {actionColumn && <td>{actionColumn.render(row)}</td>}
             </tr>
           )) : (

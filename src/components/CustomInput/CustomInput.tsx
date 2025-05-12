@@ -17,7 +17,18 @@ const CustomInput: React.FC<CustomInputProps> = ({
   symbol, onChange, onBlur, type = 'text', min, max, value, step, placeholder
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(type === 'number' ? e.target.value : e.target.value);
+    let inputValue = type === 'number' ? parseFloat(e.target.value) : e.target.value;
+
+    if (type === 'number') {
+      if (min !== undefined && typeof inputValue === 'number' && inputValue < min) {
+        inputValue = min;
+      }
+      if (max !== undefined && typeof inputValue === 'number' && inputValue > max) {
+        inputValue = max;
+      }
+    }
+
+    onChange(inputValue);
   };
 
   return (

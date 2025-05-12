@@ -29,27 +29,50 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ user }) => {
       });
       if (res.ok) {
         const data = await res.json();
+        console.log("Trades data:", data);
         const userTrades = data.trades.filter((t: any) => t.user?.id === user.id);
-        const formatted = userTrades.map((trade: any) => ({
-          ID: trade.id,
-          Валюта: trade.currency?.symbol || '-',
-          Long_Short: trade.type === 'buy' ? 'Long' : 'Short',
-          Статус: trade.status,
-          Дата_створення: new Date(trade.created_at).toLocaleDateString(),
-          Маржа: Number(trade.margin),
-          Кредитне_плече: Number(trade.leverage),
-          Обєм: Number(trade.value),
-          Ціна_входу: Number(trade.bought_at_price),
-          Теперішня_ціна: 0,
-          Орієнтована_ціна_ліквідації: Number(trade.liquidation_price),
-          Дельта: trade.status === "closed"
-            ? Number(trade.fixed_user_profit)
-            : "отримується динамічно",
-          Комісія: Number(trade.fixed_company_profit),
-          Дата_закриття: trade.closed_at
-            ? new Date(trade.closed_at).toLocaleDateString()
-            : '-',
-        }));
+        const formatted = userTrades.map((trade: any) => {
+          const currentPrice = trade.Теперішня_ціна || 0;
+          const entryPrice = trade.bought_at_price || 0;
+          let delta = 0;
+          
+          if (trade.status === "closed" || trade.status === "liquidated") {
+            delta = Number(trade.fixed_user_profit);
+          } else {
+            if (trade.type === 'buy') {
+              console.log("Current Price:", currentPrice);
+              console.log("Entry Price:", entryPrice);
+              console.log("Trade Value:", trade.value);
+              delta = (currentPrice - entryPrice) * (trade.value / entryPrice);
+            } else {
+              delta = (entryPrice - currentPrice) * (trade.value / entryPrice);
+            }
+          }
+          
+          return {
+            ID: trade.id,
+            Валюта: trade.currency?.symbol || '-',
+            Long_Short: trade.type === 'buy' ? 'Long' : 'Short',
+            Статус: trade.status,
+            Дата_створення: new Date(trade.created_at).toLocaleDateString(),
+            Маржа: Number(trade.margin).toFixed(2),
+            Кредитне_плече: Number(trade.leverage),
+            Обєм: Number(trade.value).toFixed(2),
+            Ціна_входу: Number(trade.bought_at_price).toFixed(2),
+            Теперішня_ціна: 0,
+            Орієнтована_ціна_ліквідації: Number(trade.liquidation_price).toFixed(2),
+            Дельта: Number(delta),
+            Комісія: Number(trade.fixed_company_profit).toFixed(2),
+            Дата_закриття: trade.closed_at
+              ? new Date(trade.closed_at).toLocaleDateString()
+              : '-',
+            Ціна_закриття: Number(trade.closing_price).toFixed(2),
+            Орієнтований_прибуток: Number(trade.TP_value).toFixed(2),
+            Ціна_фіксації_прибутку: Number(trade.TP_price).toFixed(2),
+            Орієнтовані_збитки: Number(trade.SL_value).toFixed(2),
+            Ціна_фіксації_збитків: Number(trade.SL_price).toFixed(2),
+          };
+        });
         setOriginalData(formatted);
         setTableData(formatted);
         setFilterOptions(generateFilterOptions(formatted));
@@ -66,7 +89,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ user }) => {
   useEffect(() => {
     if (originalData.length === 0) return;
     const symbols = Array.from(
-      new Set(originalData.map(t => t.Валюта + "USDT"))
+      new Set(originalData.map((t) => `${t.Валюта}USDT`))
     );
 
     const fetchPrices = async () => {
@@ -76,16 +99,35 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ user }) => {
             JSON.stringify(symbols)
           )}`
         );
-        if (!res.ok) throw new Error(res.statusText);
-        const prices: { symbol: string; price: string }[] = await res.json();
 
-        setTableData(current =>
-          current.map(row => {
-            const sym = row.Валюта + "USDT";
-            const p = prices.find(x => x.symbol === sym);
+        if (!res.ok) throw new Error(res.statusText);
+
+        const prices: { symbol: string; price: string }[] = await res.json();
+        setTableData((current) =>
+          current.map((row) => {
+            const sym = `${row.Валюта}USDT`;
+            const p = prices.find((x) => x.symbol === sym);
+            const currentPrice = p ? Number(p.price) : row.Теперішня_ціна;
+            let delta = 0;
+            const entryPrice = row.Ціна_входу || 0;
+            const tradeValue = row.Обєм || 0;
+
+            if (row.Статус === "closed" || row.Статус === "liquidated") {
+              delta = row.Дельта;
+            } else {
+              if (row.Long_Short === "Long") {
+                delta = (currentPrice - entryPrice) * (tradeValue / entryPrice);
+              } else {
+                delta = (entryPrice - currentPrice) * (tradeValue / entryPrice);
+              }
+            }
+            const commission = delta > 0 ? delta * 0.05 : 0;
+
             return {
               ...row,
-              Теперішня_ціна: p ? Number(p.price) : row.Теперішня_ціна
+              Теперішня_ціна: currentPrice,
+              Дельта: Number(delta.toFixed(2)),
+              Комісія: Number(commission.toFixed(2)),
             };
           })
         );
@@ -94,9 +136,13 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ user }) => {
       }
     };
 
+    // Викликаємо функцію для отримання цін
     fetchPrices();
-    const id = setInterval(fetchPrices, 5000);
-    return () => clearInterval(id);
+
+    // Оновлюємо ціни кожні 5 секунд
+    const intervalId = setInterval(fetchPrices, 5000);
+
+    return () => clearInterval(intervalId); // Очищення інтервалу при розмонтуванні
   }, [originalData]);
 
   const sortByOption = (value: string): void => {
@@ -117,11 +163,9 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ user }) => {
   };
 
   const applyFilters = (filters: { [key: string]: string[] }) => {
-
     const filteredData = originalData.filter((trade) => {
-
-      const result = Object.entries(filters).every(([label, values]) => {
-        const option = filterOptions.find(opt => opt.label === label);
+      return Object.entries(filters).every(([label, values]) => {
+        const option = filterOptions.find((opt) => opt.label === label);
         const dataKey = option?.key || label;
         const tradeValue = trade[dataKey];
 
@@ -131,22 +175,22 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ user }) => {
 
         if (values.length === 2) {
           const [min, max] = values.map(Number);
-          const isInRange = tradeValue >= min && tradeValue <= max;
-          return isInRange;
+          return tradeValue >= min && tradeValue <= max;
         } else if (values.length === 1) {
           const filterValue = values[0].toLowerCase();
           if (typeof tradeValue === "string") {
-            const isMatch = tradeValue.toLowerCase() === filterValue;
-            return isMatch;
+            return tradeValue.toLowerCase() === filterValue;
           }
-          const isIncluded = tradeValue.toString().toLowerCase().includes(filterValue);
-          return isIncluded;
+          return tradeValue.toString().toLowerCase().includes(filterValue);
+        } else if (option?.type === "boolean") {
+          // Логічні фільтри
+          return values.includes(tradeValue.toString());
         }
 
         return true;
       });
-      return result;
     });
+
     setTableData(filteredData);
   };
 
