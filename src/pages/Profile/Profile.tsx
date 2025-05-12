@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import './Profile.css';
 import ProfileContent from './components/ProfileContent/ProfileContent';
-import ProfileStats from './components/ProfileStats/ProfileStats';
 import ProfileBalance from './components/ProfileBalance/ProfileBalance';
 import { useAuth } from '../../context/AuthContext';
 import AdminPanel from './components/AdminPanel/AdminPanel';

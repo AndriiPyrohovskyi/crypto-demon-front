@@ -17,8 +17,8 @@ type PaginationProps = {
   rowsPerPageOptions?: number[];
 };
 
-type TableRow = {
-  priceColor?: string;
+export type TableRow = {
+  [key: string]: string | number | React.ReactNode | null;
 };
 
 type TableProps<T extends TableRow = TableRow> = {

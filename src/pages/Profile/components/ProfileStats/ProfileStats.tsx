@@ -1,4 +1,3 @@
-import { use, useEffect } from "react";
 import Dropdown from "../../../../components/Dropdown/Dropdown";
 
 const ProfileStats = () => {
