@@ -1,29 +1,50 @@
-import Button from "../../../../components/Button/Button";
-import CustomInput from "../../../../components/CustomInput/CustomInput";
+import { useState } from 'react';
+import Button from '../../../../components/Button/Button';
+import CustomInput from '../../../../components/CustomInput/CustomInput';
 
 const ProfileBalance = () => {
-    return (
-      <div className="profile__balance">
-      <h2>Операції над балансом</h2>
-      <div className="profile__balance">
-        <p>Баланс: 0.00 $</p>
-        <CustomInput
-            type="text" 
-            onChange={function (_value: string | number): void {
-              throw new Error("Function not implemented.");
-            } }        
-            />
-        <Button text="Поповнити баланс" />
-        <CustomInput
-            type="text" 
-            onChange={function (_value: string | number): void {
-              throw new Error("Function not implemented.");
-            } }        
-            />
-        <Button text="Вивести кошти" />
-      </div>
+  const [amount, setAmount] = useState<number>(0);
+
+  const handleAddBalance = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://crypto-demon-back.onrender.com/user-currency/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          symbol: 'USDT',
+          amount,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Не вдалося поповнити баланс');
+      }
+
+      const data = await response.json();
+      alert(`Баланс успішно поповнено. Новий баланс: ${data.balance}`);
+    } catch (error) {
+      console.error('Помилка поповнення балансу:', error);
+      alert('Сталася помилка під час поповнення балансу');
+    }
+  };
+
+  return (
+    <div>
+      <h3>Поповнення балансу</h3>
+      <CustomInput
+        type="number"
+        value={amount.toString()}
+        onChange={(value) => setAmount(Number(value))}
+        placeholder="Введіть суму"
+        symbol="USDT"
+      />
+      <Button onClick={handleAddBalance} text="Поповнити" />
     </div>
-    );
-}
+  );
+};
 
 export default ProfileBalance;

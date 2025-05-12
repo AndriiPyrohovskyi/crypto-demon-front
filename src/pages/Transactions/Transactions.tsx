@@ -293,11 +293,12 @@ const Transactions = () => {
       const transactionBody = {
         recipientName: recipientInput,
         symbol: selectedCurrency.value,
-        amount: valueDollar / currentPrice,
+        amount: (valueDollar / currentPrice).toFixed(2),
       };
       const exchangeBody = {
+        recipientName: recipientInput,
         fromSymbol: selectedCurrency.value,
-        fromAmount: valueDollar / currentPrice,
+        fromAmount: (valueDollar / currentPrice).toFixed(2),
         toSymbol: swapCurrency,
       };
   
@@ -310,7 +311,6 @@ const Transactions = () => {
           },
           body: JSON.stringify(exchangeBody),
         });
-  
         if (!res.ok) throw new Error('Не вдалося запросити обмін');
         alert('Запит на обмін успішно створено');
       } else {
